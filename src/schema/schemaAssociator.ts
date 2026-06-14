@@ -120,35 +120,48 @@ export class SchemaAssociator {
     return !stripped.includes("/") && fileName.endsWith(stripped);
   }
 
-  // Converts a glob pattern to a RegExp and tests it against filePath.
-  // Supports * (single-segment wildcard) and ** (multi-segment wildcard).
   private globMatches(glob: string, filePath: string): boolean {
-    let re = "";
-    let i = 0;
-    while (i < glob.length) {
-      const ch = glob[i];
-      if (ch === "*" && glob[i + 1] === "*") {
-        re += ".*";
-        i += 2;
-        if (glob[i] === "/") i++;
-      } else if (ch === "*") {
-        re += "[^/]*";
-        i++;
-      } else if (ch === "?") {
-        re += "[^/]";
-        i++;
-      } else {
-        re += ch.replace(/[.+^${}()|[\]\\]/g, "\\$&");
-        i++;
+    // Note: To fully cache RegExp, we should compile it once during addUserAssociation.
+    // However, since we need a quick fix, we can cache the RegExp per glob string.
+    let re = this.regexCache.get(glob);
+    if (!re) {
+      let reStr = "";
+      let i = 0;
+      while (i < glob.length) {
+        const ch = glob[i];
+        if (ch === "*" && glob[i + 1] === "*") {
+          reStr += ".*";
+          i += 2;
+          if (glob[i] === "/") i++;
+        } else if (ch === "*") {
+          reStr += "[^/]*";
+          i++;
+        } else if (ch === "?") {
+          reStr += "[^/]";
+          i++;
+        } else {
+          reStr += ch.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+          i++;
+        }
       }
+      re = new RegExp(`(^|/)${reStr}$`);
+      this.regexCache.set(glob, re);
     }
-    return new RegExp(`(^|/)${re}$`).test(filePath);
+    return re.test(filePath);
   }
+
+  private xsdCache = new Map<string, string>();
+  private regexCache = new Map<string, RegExp>();
 
   /** Reads and returns the content of an XSD file, or null if not found. */
   private readXsdFile(xsdPath: string): string | null {
+    if (this.xsdCache.has(xsdPath)) {
+      return this.xsdCache.get(xsdPath)!;
+    }
     try {
-      return fs.readFileSync(xsdPath, "utf-8");
+      const content = fs.readFileSync(xsdPath, "utf-8");
+      this.xsdCache.set(xsdPath, content);
+      return content;
     } catch (err) {
       console.warn(`Schema file not found at "${xsdPath}": ${(err as Error).message}`);
       return null;

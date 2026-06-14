@@ -23,13 +23,15 @@ export function getLanguageService() {
     },
 
     doComplete(document: XMLDocument, position: Position, fileName?: string, documentPath?: string): CompletionList {
-      const xmlns = (document as any).getNamespace?.() ?? undefined;
+      const nsMatch = document.text.match(/<[^?!][\w:-]*[^>]*\bxmlns\s*=\s*["']([^"']+)["']/);
+      const xmlns = nsMatch ? nsMatch[1] : undefined;
       const completionProvider = schemaProvider.resolveSchemaForDocument(fileName ?? '', xmlns, documentPath);
       return doComplete(document, position, completionProvider);
     },
 
     doHover(document: XMLDocument, position: Position, fileName?: string, documentPath?: string): HoverResult | null {
-      const xmlns = (document as any).getNamespace?.() ?? undefined;
+      const nsMatch = document.text.match(/<[^?!][\w:-]*[^>]*\bxmlns\s*=\s*["']([^"']+)["']/);
+      const xmlns = nsMatch ? nsMatch[1] : undefined;
       const completionProvider = schemaProvider.resolveSchemaForDocument(fileName ?? '', xmlns, documentPath);
       return doHover(document, position, completionProvider);
     },
@@ -101,6 +103,10 @@ export function getLanguageService() {
     /** Registers a custom file-to-schema mapping, taking priority over built-in associations. */
     addUserAssociation(association: SchemaAssociation): void {
       schemaProvider.addUserAssociation(association);
+    },
+
+    removeDocument(uri: string): void {
+      schemaProvider.removeDocument(uri);
     },
 
     /** Removes all user-registered associations so a fresh set can be applied. */

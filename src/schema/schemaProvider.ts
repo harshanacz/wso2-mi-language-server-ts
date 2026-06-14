@@ -124,6 +124,17 @@ export class SchemaProvider {
     this.associator.addUserAssociation(association);
   }
 
+  /** Removes a document from the cache, disposing its validator if no longer referenced. */
+  removeDocument(uri: string): void {
+    const xsdKey = this.documentToSchema.get(uri);
+    this.documentToSchema.delete(uri);
+    if (xsdKey && !this._isKeyReferenced(xsdKey)) {
+      this.validators.get(xsdKey)?.dispose();
+      this.validators.delete(xsdKey);
+      this.completionProviders.delete(xsdKey);
+    }
+  }
+
   /** Removes all user-registered associations so a fresh set can be applied. */
   clearUserAssociations(): void {
     this.associator.clearUserAssociations();
@@ -160,10 +171,11 @@ export class SchemaProvider {
     if (!resolved) return null;
 
     // Build a provider from the raw XSD text (no xs:include inlining). This is a
-    // partial provider used only when the auto:// provider is not ready yet. It is
-    // intentionally NOT cached so that once validateAndSend registers the full
-    // auto:// provider it is used immediately on the next request.
-    return new XsdCompletionProvider(resolved.xsdText);
+    // partial provider used only when the auto:// provider is not ready yet.
+    if (!this.completionProviders.has(resolved.xsdPath!)) {
+      this.completionProviders.set(resolved.xsdPath!, new XsdCompletionProvider(resolved.xsdText));
+    }
+    return this.completionProviders.get(resolved.xsdPath!)!;
   }
 
   /**
@@ -204,11 +216,15 @@ export class SchemaProvider {
   /** Removes all auto:// schemas so they are re-registered fresh on next validation. */
   invalidateAutoSchemas(): void {
     const keysToCheck = new Set<string>();
+    const urisToDelete: string[] = [];
     for (const [docUri, xsdKey] of this.documentToSchema) {
       if (docUri.startsWith("auto://")) {
         keysToCheck.add(xsdKey);
-        this.documentToSchema.delete(docUri);
+        urisToDelete.push(docUri);
       }
+    }
+    for (const docUri of urisToDelete) {
+      this.documentToSchema.delete(docUri);
     }
     for (const xsdKey of keysToCheck) {
       if (!this._isKeyReferenced(xsdKey)) {

@@ -128,15 +128,18 @@ connection.onInitialized(async () => {
   await validateOpenDocumentsSafely("initial configuration");
 });
 
-connection.onDidChangeConfiguration(() => {
+connection.onDidChangeConfiguration((params) => {
   connection.console.log("[server] Configuration changed — rebuilding schema associations");
 
   service.invalidateAutoSchemas();
   diagnosticsHandler.dispose();
   service.clearUserAssociations();
 
-  if (initializationSchemas.length > 0) {
-    registerSchemas(initializationSchemas);
+  const settings = params.settings as any;
+  const updatedSchemas = settings?.wso2mi?.schemas ?? settings?.schemas ?? initializationSchemas;
+
+  if (updatedSchemas && updatedSchemas.length > 0) {
+    registerSchemas(updatedSchemas);
   }
 
   if (!initialConfigurationLoaded) {
@@ -162,17 +165,23 @@ documents.onDidChangeContent((change) => {
   clearTimeout(pendingValidations.get(uri));
   pendingValidations.set(uri, setTimeout(() => {
     pendingValidations.delete(uri);
-    connection.console.log(`[onDidChangeContent] Validating ${uri}`);
-    void validateAndSendSafely(change.document, "document change");
+    const current = documents.get(uri);
+    if (current) {
+      connection.console.log(`[onDidChangeContent] Validating ${uri}`);
+      void validateAndSendSafely(current, "document change");
+    }
   }, VALIDATION_DEBOUNCE_MS));
 });
 
 documents.onDidClose((event) => {
-  const timer = pendingValidations.get(event.document.uri);
+  const uri = event.document.uri;
+  const timer = pendingValidations.get(uri);
   if (timer) {
     clearTimeout(timer);
-    pendingValidations.delete(event.document.uri);
+    pendingValidations.delete(uri);
   }
+  diagnosticsHandler.clearDiagnostics(uri);
+  service.removeDocument(uri);
 });
 
 connection.onShutdown(() => {

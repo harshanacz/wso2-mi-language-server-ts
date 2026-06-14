@@ -31,6 +31,10 @@ export class DiagnosticsHandler {
   // xsdPath → ProjectValidator — one instance per unique schema, shared across all documents
   // that resolve to the same XSD. Validators live until dispose() is called.
   private projectValidators = new Map<string, any>();
+  private validatorPromises = new Map<string, Promise<any>>();
+  private inFlightCount = 0;
+  private pendingDispose = false;
+  private importCache = new Map<string, Record<string, string> | undefined>();
 
   constructor(connection: Connection, service: LanguageService) {
     this.connection = connection;
@@ -38,6 +42,18 @@ export class DiagnosticsHandler {
   }
 
   async validateAndSend(document: TextDocument): Promise<void> {
+    this.inFlightCount++;
+    try {
+      await this._validateAndSend(document);
+    } finally {
+      this.inFlightCount--;
+      if (this.pendingDispose && this.inFlightCount === 0) {
+        this._doDispose();
+      }
+    }
+  }
+
+  private async _validateAndSend(document: TextDocument): Promise<void> {
     // `document` is the live TextDocument managed by the LSP layer — its version
     // advances as the user keeps typing while this async validation runs. Capture
     // the version now and discard the result if it is stale by publish time, so a
@@ -66,26 +82,30 @@ export class DiagnosticsHandler {
     };
 
     // First pass: resolve by filename/pattern only (no namespace).
-    let resolved = this.service.resolveSchemaForDocument(fileName, undefined, documentPath);
-
-    // Second pass: if no pattern matched, parse to extract xmlns and retry.
-    // This handles files that rely on the built-in namespace fallback
-    // (e.g. a Synapse XML outside any pom.xml-detected project folder).
-    if (!resolved) {
-      const xmlns = (getXmlDoc() as any).getNamespace?.() ?? undefined;
-      if (xmlns !== undefined) {
-        resolved = this.service.resolveSchemaForDocument(fileName, xmlns, documentPath);
-      }
+    // Check if this document maps to a user-provided schema by pattern
+    // Pass the raw text to a quick regex to extract xmlns if pattern match fails
+    let xmlns: string | undefined;
+    const nsMatch = text.match(/<[^?!][\w:-]*[^>]*\bxmlns\s*=\s*["']([^"']+)["']/);
+    if (nsMatch) {
+      xmlns = nsMatch[1];
     }
+
+    const resolved = this.service.resolveSchemaForDocument(fileName, xmlns, documentPath);
 
     if (resolved) {
       const autoUri = `auto://${documentPath ?? fileName}`;
 
       // Register schema for completions/hover (unchanged from before).
       if (!this.service.hasSchema(autoUri)) {
-        const imports = resolved.xsdPath
-          ? this.loadReferencedXsds(resolved.xsdPath, resolved.xsdText)
-          : undefined;
+        let imports: Record<string, string> | undefined;
+        if (resolved.xsdPath) {
+          if (this.importCache.has(resolved.xsdPath)) {
+            imports = this.importCache.get(resolved.xsdPath);
+          } else {
+            imports = this.loadReferencedXsds(resolved.xsdPath, resolved.xsdText);
+            this.importCache.set(resolved.xsdPath, imports);
+          }
+        }
         const importKeys = imports ? Object.keys(imports) : [];
         this.connection.console.log(
           `[DiagnosticsHandler] Auto-registering schema for ${fileName}: ${importKeys.length} referenced import files (${importKeys.filter(k => k.includes("/")).length} in subdirs)`
@@ -173,11 +193,20 @@ export class DiagnosticsHandler {
   /** Clears all diagnostics for the given document URI. */
   clearDiagnostics(uri: string): void {
     this.connection.console.log(`[DiagnosticsHandler] Clearing diagnostics for ${uri}`);
-    this.send(uri, []);
+    this.diagnosticsByUri.delete(uri);
+    this.connection.sendDiagnostics({ uri, diagnostics: [] });
   }
 
   /** Destroys all cached ProjectValidators and releases their grammar pools. */
   dispose(): void {
+    if (this.inFlightCount > 0) {
+      this.pendingDispose = true;
+      return;
+    }
+    this._doDispose();
+  }
+
+  private _doDispose(): void {
     for (const validator of this.projectValidators.values()) {
       try {
         validator.destroy();
@@ -186,6 +215,9 @@ export class DiagnosticsHandler {
       }
     }
     this.projectValidators.clear();
+    this.validatorPromises.clear();
+    this.importCache.clear();
+    this.pendingDispose = false;
     this.connection.console.log("[validator] All ProjectValidators destroyed");
   }
 
@@ -204,7 +236,11 @@ export class DiagnosticsHandler {
   }
 
   private send(uri: string, diagnostics: Diagnostic[]): void {
-    this.diagnosticsByUri.set(uri, diagnostics);
+    if (diagnostics.length === 0) {
+      this.diagnosticsByUri.delete(uri);
+    } else {
+      this.diagnosticsByUri.set(uri, diagnostics);
+    }
     this.connection.sendDiagnostics({ uri, diagnostics });
   }
 
@@ -223,32 +259,31 @@ export class DiagnosticsHandler {
   private async buildFilesMap(schemaFolder: string): Promise<Record<string, string>> {
     const result: Record<string, string> = {};
 
-    const walk = (dir: string, prefix: string) => {
-      let entries: fs.Dirent[];
+    const walk = async (dir: string, prefix: string) => {
+      let entries: string[] = [];
       try {
-        entries = fs.readdirSync(dir, { withFileTypes: true });
+        entries = await fs.promises.readdir(dir);
       } catch {
         return;
       }
       for (const entry of entries) {
-        const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
-        const full = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walk(full, rel);
-        } else if (entry.isFile()) {
-          const lower = entry.name.toLowerCase();
-          if (lower.endsWith(".xsd") || lower.endsWith(".dtd")) {
-            try {
-              result[rel] = fs.readFileSync(full, "utf-8");
-            } catch {
-              // skip unreadable files
-            }
-          }
+        const fullPath = path.join(dir, entry);
+        let stat: fs.Stats;
+        try {
+          stat = await fs.promises.stat(fullPath);
+        } catch {
+          continue;
+        }
+        if (stat.isDirectory()) {
+          await walk(fullPath, `${prefix}${entry}/`);
+        } else if (entry.endsWith(".xsd") || entry.endsWith(".dtd")) {
+          const content = await fs.promises.readFile(fullPath, "utf-8");
+          result[`${prefix}${entry}`] = content;
         }
       }
     };
 
-    walk(schemaFolder, "");
+    await walk(schemaFolder, "");
     return result;
   }
 
@@ -256,9 +291,15 @@ export class DiagnosticsHandler {
    *  Keyed by xsdPath so all documents that resolve to the same schema share
    *  one instance and compile the grammar only once. */
   private async getOrCreateValidator(schemaFolder: string, entryPath: string): Promise<any> {
-    const existing = this.projectValidators.get(entryPath);
+    const existing = this.validatorPromises.get(entryPath);
     if (existing) return existing;
 
+    const promise = this._buildValidator(schemaFolder, entryPath);
+    this.validatorPromises.set(entryPath, promise);
+    return promise;
+  }
+
+  private async _buildValidator(schemaFolder: string, entryPath: string): Promise<any> {
     const filesMap = await this.buildFilesMap(schemaFolder);
 
     const requestedEntry = this.toImportKey(schemaFolder, path.resolve(entryPath));
