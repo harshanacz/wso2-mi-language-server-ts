@@ -503,6 +503,46 @@ describe("XsdCompletionProvider — variable has no key in Synapse-like merged s
   });
 });
 
+describe("XsdCompletionProvider — maxOccurs cardinality capture", () => {
+  const xsd = `<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="explicitOne" maxOccurs="1"/>
+        <xs:element name="implicitOne"/>
+        <xs:element name="many" maxOccurs="unbounded"/>
+        <xs:element name="three" maxOccurs="3"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+  const p = new XsdCompletionProvider(xsd);
+  const childOf = (name: string) =>
+    p.getChildrenInfo("root").find((c) => c.name === name);
+
+  it("explicit maxOccurs=\"1\" is captured as maxOccurs: 1", () => {
+    expect(childOf("explicitOne")?.maxOccurs).toBe(1);
+  });
+
+  it("absent maxOccurs defaults to maxOccurs: 1 (XSD default)", () => {
+    expect(childOf("implicitOne")?.maxOccurs).toBe(1);
+  });
+
+  it("maxOccurs=\"unbounded\" is captured as the string \"unbounded\"", () => {
+    expect(childOf("many")?.maxOccurs).toBe("unbounded");
+  });
+
+  it("numeric maxOccurs > 1 is captured as a number", () => {
+    expect(childOf("three")?.maxOccurs).toBe(3);
+  });
+
+  it("getChildren still returns plain names (backward compatible)", () => {
+    const names = p.getChildren("root");
+    expect(names).toEqual(["explicitOne", "implicitOne", "many", "three"]);
+  });
+});
+
 describe("XsdCompletionProvider — xs:choice inside xs:sequence", () => {
   const xsd = `<?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">

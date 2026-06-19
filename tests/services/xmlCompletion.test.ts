@@ -91,8 +91,11 @@ const xsd = `<?xml version="1.0"?>
 </xs:schema>`;
 
 describe("doComplete — XSD-aware element completions", () => {
-  // '<project><' — cursor after '<', inside project context
-  const xmlWithSchema = "<project><groupId/></project>";
+  // '<project><' — cursor after '<', inside project context.
+  // The placeholder <_/> child establishes the '<' completion context without
+  // consuming either singleton schema child (groupId/artifactId), so both remain
+  // suggestible. (Cardinality filtering of already-present children is covered below.)
+  const xmlWithSchema = "<project><_/></project>";
   const doc = parseXMLDocument(uri, xmlWithSchema);
   const provider = new XsdCompletionProvider(xsd);
 
@@ -154,6 +157,84 @@ describe("doComplete — XSD-aware attribute completions", () => {
     const result = doComplete(doc, { line: 0, character: 9 }, provider);
     const versionItem = result.items.find((i) => i.label === "version");
     expect(versionItem?.insertText).toContain('"');
+  });
+});
+
+// ─── XSD-aware element completions — maxOccurs cardinality filtering ─────────
+
+const cardinalityXsd = `<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="singleton" maxOccurs="1"/>
+        <xs:element name="many" maxOccurs="unbounded"/>
+        <xs:element name="upToThree" maxOccurs="3"/>
+        <xs:element name="wrapper" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="wrapper">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="singleton" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+describe("doComplete — maxOccurs cardinality filtering", () => {
+  const provider = new XsdCompletionProvider(cardinalityXsd);
+
+  // The '|' marks the cursor; it sits just after a '<' that opens a placeholder
+  // element ('<_/>'), which is the natural point at which child completion fires.
+  // Completion is requested for the children of the placeholder's parent.
+  function labelsAt(marked: string): string[] {
+    const character = marked.indexOf("|");
+    const text = marked.replace("|", "");
+    const doc = parseXMLDocument(uri, text);
+    return doComplete(doc, { line: 0, character }, provider).items.map((i) => i.label);
+  }
+
+  it("singleton already present once → not suggested again", () => {
+    const labels = labelsAt("<root><singleton/><|_/></root>");
+    expect(labels).not.toContain("singleton");
+  });
+
+  it("singleton not yet present → still suggested", () => {
+    const labels = labelsAt("<root><|_/></root>");
+    expect(labels).toContain("singleton");
+  });
+
+  it("unbounded child suggested when none present", () => {
+    const labels = labelsAt("<root><|_/></root>");
+    expect(labels).toContain("many");
+  });
+
+  it("unbounded child suggested even when several already present", () => {
+    const labels = labelsAt("<root><many/><many/><many/><|_/></root>");
+    expect(labels).toContain("many");
+  });
+
+  it("numeric maxOccurs=3 with 2 present → still suggested", () => {
+    const labels = labelsAt("<root><upToThree/><upToThree/><|_/></root>");
+    expect(labels).toContain("upToThree");
+  });
+
+  it("numeric maxOccurs=3 with 3 present → not suggested", () => {
+    const labels = labelsAt(
+      "<root><upToThree/><upToThree/><upToThree/><|_/></root>"
+    );
+    expect(labels).not.toContain("upToThree");
+  });
+
+  it("only DIRECT children count — a deeper same-named element does not consume the limit", () => {
+    // 'singleton' appears as a grandchild (under <wrapper>), not as a direct child
+    // of <root>, so it must still be suggested for <root>.
+    const labels = labelsAt(
+      "<root><wrapper><singleton/></wrapper><|_/></root>"
+    );
+    expect(labels).toContain("singleton");
   });
 });
 

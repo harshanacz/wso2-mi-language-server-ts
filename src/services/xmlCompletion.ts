@@ -49,36 +49,62 @@ export function doComplete(
       // or in its content area (e.g. '<foo>\n  <|').  When inside the open tag we want
       // to suggest SIBLINGS (children of the parent); when in the content area we want
       // to suggest CHILDREN of the current node.
+      // The element whose children we are completing — used both to pick the schema
+      // child set and to count how many of each child already exist in the document.
       let parentName: string | undefined;
+      let containerNode = node;
       if (node.type === "element") {
         const nodeText = document.text.substring(node.startOffset, offset);
         const cursorIsInOpenTag = !nodeText.includes(">");
         if (cursorIsInOpenTag) {
           parentName =
             node.parent?.type === "element" ? node.parent.name : undefined;
+          if (node.parent) containerNode = node.parent;
         } else {
           parentName = node.name;
         }
       }
 
-      let names: string[];
+      let childInfos: { name: string; maxOccurs: number | "unbounded" }[];
       if (parentName === undefined) {
         // Root-level context: prefer children of the top-level container element
         // (e.g. <definitions> in Synapse config) so only config-artifact elements
         // are offered rather than every globally-declared element including mediators.
-        names = schemaProvider.getChildren("definitions");
-        if (names.length === 0) names = schemaProvider.getAllElements();
+        childInfos = schemaProvider.getChildrenInfo("definitions");
+        if (childInfos.length === 0) {
+          // No schema for the container — fall back to every known element and don't
+          // apply cardinality filtering (we have no reliable maxOccurs for these).
+          childInfos = schemaProvider
+            .getAllElements()
+            .map((name: string) => ({ name, maxOccurs: "unbounded" as const }));
+        }
       } else {
         // Inside a known element: suggest only its schema-defined children.
         // No getAllElements() fallback — unknown or childless elements get nothing.
-        names = schemaProvider.getChildren(parentName);
+        childInfos = schemaProvider.getChildrenInfo(parentName);
       }
 
+      // Count how many times each element name already appears as a DIRECT child of
+      // the current container (not descendants, not siblings of ancestors).
+      const childCounts = new Map<string, number>();
+      for (const child of containerNode.children) {
+        if (child.type === "element" && child.name) {
+          childCounts.set(child.name, (childCounts.get(child.name) ?? 0) + 1);
+        }
+      }
+
+      // Filter out children that have already reached their maxOccurs limit.
+      // "unbounded" children are never filtered.
+      const allowed = childInfos.filter((info) => {
+        if (info.maxOccurs === "unbounded") return true;
+        return (childCounts.get(info.name) ?? 0) < info.maxOccurs;
+      });
+
       return {
-        items: names.map((name: string) => ({
-          label: name,
+        items: allowed.map((info) => ({
+          label: info.name,
           kind: "element" as const,
-          insertText: `${name}>$0</${name}>`,
+          insertText: `${info.name}>$0</${info.name}>`,
         })),
         isIncomplete: false,
       };

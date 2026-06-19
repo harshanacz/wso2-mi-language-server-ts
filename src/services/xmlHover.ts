@@ -43,7 +43,7 @@ export function doHover(
       }
 
       if (info.children.length > 0) {
-        sections.push(`**Children:** ${info.children.join(", ")}`);
+        sections.push(`**Children:** ${info.children.map((c: any) => c.name).join(", ")}`);
       }
 
       return {
