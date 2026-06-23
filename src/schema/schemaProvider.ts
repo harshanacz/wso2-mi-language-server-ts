@@ -5,7 +5,7 @@ import { SchemaAssociator, SchemaAssociation, ResolvedSchema } from "./schemaAss
 
 // Resolves a relative schemaLocation against a current file's path (both relative to
 // the entry schema's directory).  Handles ../ and ./ segments via standard URI resolution.
-function resolveRelativePath(basePath: string, location: string): string {
+export function resolveRelativePath(basePath: string, location: string): string {
   const parts = basePath.split("/");
   parts.pop(); // drop filename, keep directory segments
   for (const seg of location.split("/")) {
@@ -18,7 +18,8 @@ function resolveRelativePath(basePath: string, location: string): string {
 // Inlines xs:include / xs:redefine references into a single flat XSD string.
 // `currentPath` is the path of `text` relative to the entry schema's directory.
 // Uses `visited` to break cycles.
-function inlineIncludes(
+// Exported for unit testing of include/redefine inlining.
+export function inlineIncludes(
   text: string,
   imports: Record<string, string>,
   currentPath: string = "",

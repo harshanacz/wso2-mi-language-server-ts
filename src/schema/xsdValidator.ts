@@ -42,7 +42,8 @@ function isSchemaBundle(xsd: XsdInput): xsd is SchemaBundle {
 
 // Xerces reports the column at the closing '>' of the problematic tag.
 // Walk backward on that line to find '<' so the full tag name is highlighted.
-function toRange(line: number, column: number, xmlLines: string[]): Range {
+// Exported for unit testing of range-mapping behavior.
+export function toRange(line: number, column: number, xmlLines: string[]): Range {
   const l = line > 0 ? line - 1 : 0;
   const c = column > 0 ? column - 1 : 0;
 
@@ -70,7 +71,8 @@ const MISMATCH_RE = /element type ["']([^"']+)["'] must be terminated/i;
 const CONTENT_MODEL_RE = /\belement ['"](?:[^'"]*})?([^'"]+)['"]\s+is not allowed/;
 
 // Search backward from `beforeLine`/`beforeCol` for <tagName (open tag).
-function findOpenTagRange(tagName: string, beforeLine: number, beforeCol: number, xmlLines: string[]): Range | null {
+// Exported for unit testing of the mismatched-tag / content-model remapping.
+export function findOpenTagRange(tagName: string, beforeLine: number, beforeCol: number, xmlLines: string[]): Range | null {
   const needle = `<${tagName}`;
   for (let l = beforeLine; l >= 0; l--) {
     const lineText = xmlLines[l] ?? "";
@@ -86,7 +88,8 @@ function findOpenTagRange(tagName: string, beforeLine: number, beforeCol: number
   return null;
 }
 
-function mapResults(result: ValidationResult, xmlText: string): Diagnostic[] {
+// Exported for unit testing of the Xerces error → diagnostic range mapping.
+export function mapResults(result: ValidationResult, xmlText: string): Diagnostic[] {
   const xmlLines = xmlText.split("\n");
   const diagnostics: Diagnostic[] = [];
   for (const d of result.parseErrors) {

@@ -388,52 +388,15 @@ export class DiagnosticsHandler {
   }
 
   private findSchemaLocations(xsdText: string): string[] {
-    const locations: string[] = [];
-    const tagPattern = /<(?:(?:\w+):)?(?:include|import|redefine)\b[^>]*\bschemaLocation\s*=\s*(["'])([^"']+)\1/gi;
-    let match: RegExpExecArray | null;
-    while ((match = tagPattern.exec(xsdText)) !== null) {
-      locations.push(match[2]);
-    }
-    return locations;
+    return findSchemaLocations(xsdText);
   }
 
   private findDtdLocations(text: string): string[] {
-    const locations: string[] = [];
-    const doctypePattern = /<!DOCTYPE\b[\s\S]*?(?:SYSTEM\s+(["'])([^"']+)\1|PUBLIC\s+(["'])[^"']+\3\s+(["'])([^"']+)\4)[\s\S]*?>/gi;
-    const entityPattern = /<!ENTITY\s+%\s+[\w.-]+\s+(?:SYSTEM\s+(["'])([^"']+)\1|PUBLIC\s+(["'])[^"']+\3\s+(["'])([^"']+)\4)\s*>/gi;
-    let match: RegExpExecArray | null;
-
-    while ((match = doctypePattern.exec(text)) !== null) {
-      locations.push(match[2] ?? match[5]);
-    }
-
-    while ((match = entityPattern.exec(text)) !== null) {
-      locations.push(match[2] ?? match[5]);
-    }
-
-    return locations.filter((location) => location.toLowerCase().endsWith(".dtd"));
+    return findDtdLocations(text);
   }
 
   private resolveLocalReference(currentPath: string, rootDir: string, location: string, allowDtd: boolean): string | undefined {
-    if (/^[a-z][a-z0-9+.-]*:/i.test(location)) {
-      this.warn(`[DiagnosticsHandler] Skipping remote schema reference '${location}'`);
-      return undefined;
-    }
-
-    const lowerLocation = location.toLowerCase();
-    if (!lowerLocation.endsWith(".xsd") && !(allowDtd && lowerLocation.endsWith(".dtd"))) {
-      this.warn(`[DiagnosticsHandler] Skipping unsupported schema reference '${location}'`);
-      return undefined;
-    }
-
-    const resolvedPath = path.resolve(path.dirname(currentPath), location);
-    const relativeToRoot = path.relative(rootDir, resolvedPath);
-    if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) {
-      this.warn(`[DiagnosticsHandler] Skipping schema reference outside schema root '${location}'`);
-      return undefined;
-    }
-
-    return resolvedPath;
+    return resolveLocalReference(currentPath, rootDir, location, allowDtd, (m) => this.warn(m));
   }
 
   private toImportKey(rootDir: string, fullPath: string): string {
@@ -456,8 +419,10 @@ export class DiagnosticsHandler {
  * Keeping only the single "unknown element" error avoids noisy cascades like:
  *   - "attribute 'name' is not declared for element 'variable'"
  *   - "element 'variable' is not allowed for content model '(...)'"
+ *
+ * Exported for unit testing of the cascade-collapsing logic.
  */
-function filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
+export function filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
   // Step 1: collect element names that are outright unknown
   const unknownElements = new Set<string>();
   for (const d of diagnostics) {
@@ -494,4 +459,66 @@ function filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
     seen.add(key);
     return true;
   });
+}
+
+/** Extracts schemaLocation values from xs:include / xs:import / xs:redefine tags.
+ *  Exported for unit testing of schema-reference discovery. */
+export function findSchemaLocations(xsdText: string): string[] {
+  const locations: string[] = [];
+  const tagPattern = /<(?:(?:\w+):)?(?:include|import|redefine)\b[^>]*\bschemaLocation\s*=\s*(["'])([^"']+)\1/gi;
+  let match: RegExpExecArray | null;
+  while ((match = tagPattern.exec(xsdText)) !== null) {
+    locations.push(match[2]);
+  }
+  return locations;
+}
+
+/** Extracts .dtd locations referenced via <!DOCTYPE> (SYSTEM/PUBLIC) or <!ENTITY %>.
+ *  Exported for unit testing of DTD-reference discovery. */
+export function findDtdLocations(text: string): string[] {
+  const locations: string[] = [];
+  const doctypePattern = /<!DOCTYPE\b[\s\S]*?(?:SYSTEM\s+(["'])([^"']+)\1|PUBLIC\s+(["'])[^"']+\3\s+(["'])([^"']+)\4)[\s\S]*?>/gi;
+  const entityPattern = /<!ENTITY\s+%\s+[\w.-]+\s+(?:SYSTEM\s+(["'])([^"']+)\1|PUBLIC\s+(["'])[^"']+\3\s+(["'])([^"']+)\4)\s*>/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = doctypePattern.exec(text)) !== null) {
+    locations.push(match[2] ?? match[5]);
+  }
+
+  while ((match = entityPattern.exec(text)) !== null) {
+    locations.push(match[2] ?? match[5]);
+  }
+
+  return locations.filter((location) => location.toLowerCase().endsWith(".dtd"));
+}
+
+/** Resolves a schemaLocation/DTD reference to an absolute path inside the schema root,
+ *  rejecting remote schemes, unsupported extensions, and paths escaping the root.
+ *  `warn` receives a message for each rejected reference. Exported for unit testing. */
+export function resolveLocalReference(
+  currentPath: string,
+  rootDir: string,
+  location: string,
+  allowDtd: boolean,
+  warn: (message: string) => void = () => {},
+): string | undefined {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(location)) {
+    warn(`[DiagnosticsHandler] Skipping remote schema reference '${location}'`);
+    return undefined;
+  }
+
+  const lowerLocation = location.toLowerCase();
+  if (!lowerLocation.endsWith(".xsd") && !(allowDtd && lowerLocation.endsWith(".dtd"))) {
+    warn(`[DiagnosticsHandler] Skipping unsupported schema reference '${location}'`);
+    return undefined;
+  }
+
+  const resolvedPath = path.resolve(path.dirname(currentPath), location);
+  const relativeToRoot = path.relative(rootDir, resolvedPath);
+  if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) {
+    warn(`[DiagnosticsHandler] Skipping schema reference outside schema root '${location}'`);
+    return undefined;
+  }
+
+  return resolvedPath;
 }
