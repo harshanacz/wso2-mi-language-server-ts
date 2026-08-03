@@ -7,11 +7,17 @@ export interface AttributeInfo {
   required: boolean;   // use="required"
 }
 
+export interface ChildElementInfo {
+  name: string;
+  /** XSD defaults maxOccurs to 1 when the attribute is absent. */
+  maxOccurs: number | "unbounded";
+}
+
 export interface ElementInfo {
   name: string;
   description: string;     // from xs:documentation
   attributes: AttributeInfo[];
-  children: string[];      // valid child element names
+  children: ChildElementInfo[]; // valid child elements and their occurrence limits
 }
 
 export interface SchemaCompletionData {
@@ -28,6 +34,14 @@ function getAttrValue(node: any, attrName: string): string {
     }
   }
   return "";
+}
+
+function getMaxOccurs(node: any): number | "unbounded" {
+  const value = getAttrValue(node, "maxOccurs");
+  if (value === "unbounded") return "unbounded";
+
+  const parsed = Number(value || "1");
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : 1;
 }
 
 function getTextContent(node: any): string {
@@ -76,7 +90,7 @@ class XsdCstParser {
   //Temporary Caches
 
   // Maps complexType name → direct child element names, for type-ref resolution. LogMediator → ["property"]
-  private complexTypeChildren = new Map<string, string[]>();
+  private complexTypeChildren = new Map<string, ChildElementInfo[]>();
   // Maps complexType name → attribute list, for type-ref attribute resolution. LogMediator → [level, description]
   private complexTypeAttributes = new Map<string, AttributeInfo[]>();
   // Maps element name → type attribute value, for post-walk resolution. log → "LogMediator"
@@ -84,7 +98,7 @@ class XsdCstParser {
   // Maps attributeGroup name → { direct attrs, referenced group names }. commonAttrs → [description]
   private rawGroups = new Map<string, { attrs: AttributeInfo[]; refs: string[] }>();
   // Maps xs:group name → { direct element names, referenced group names }. mediatorGroup → [log, property]
-  private rawElementGroups = new Map<string, { elements: string[]; refs: string[] }>();
+  private rawElementGroups = new Map<string, { elements: ChildElementInfo[]; refs: string[] }>();
 
   constructor(private cst: any) {}
 
@@ -131,11 +145,7 @@ class XsdCstParser {
 
       const children = this.complexTypeChildren.get(localType);
       if (children) {
-        for (const childName of children) {
-          if (!element.children.includes(childName)) {
-            element.children.push(childName);
-          }
-        }
+        for (const child of children) this.addChild(element, child);
       }
 
       const ctAttrs = this.complexTypeAttributes.get(localType);
@@ -181,6 +191,12 @@ class XsdCstParser {
     }
   }
 
+  private addChild(parent: ElementInfo, child: ChildElementInfo): void {
+    if (!parent.children.some((existing) => existing.name === child.name)) {
+      parent.children.push(child);
+    }
+  }
+
   private handleElement(node: any, parentElementName: string | null): void {
     const name = getAttrValue(node, "name");
     const ref = getAttrValue(node, "ref");
@@ -191,9 +207,7 @@ class XsdCstParser {
     if (!name && ref) {
       if (parentElementName !== null) {
         const parent = this.data.elements.get(parentElementName);
-        if (parent && !parent.children.includes(ref)) {
-          parent.children.push(ref);
-        }
+        if (parent) this.addChild(parent, { name: ref, maxOccurs: getMaxOccurs(node) });
       }
       return;
     }
@@ -219,9 +233,7 @@ class XsdCstParser {
 
     if (parentElementName !== null) {
       const parent = this.data.elements.get(parentElementName);
-      if (parent && !parent.children.includes(name)) {
-        parent.children.push(name);
-      }
+      if (parent) this.addChild(parent, { name, maxOccurs: getMaxOccurs(node) });
     }
 
     const typeRef = getAttrValue(node, "type");
@@ -285,9 +297,7 @@ class XsdCstParser {
       if (parentElementName !== null) {
         const parent = this.data.elements.get(parentElementName);
         if (parent) {
-          for (const name of this.expandElementGroup(ref)) {
-            if (!parent.children.includes(name)) parent.children.push(name);
-          }
+          for (const child of this.expandElementGroup(ref)) this.addChild(parent, child);
         }
       }
       // No body to recurse into for a reference node.
@@ -334,14 +344,16 @@ class XsdCstParser {
     if (!isXsdTag(tag, "group")) return;
     const name = getAttrValue(node, "name");
     if (!name) return;
-    const elements: string[] = [];
+    const elements: ChildElementInfo[] = [];
     const refs: string[] = [];
     
     const collect = (n: any): void => {
       const t = getTagName(n);
       if (isXsdTag(t, "element")) {
         const eName = getAttrValue(n, "name") || getAttrValue(n, "ref");
-        if (eName && !elements.includes(eName)) elements.push(eName);
+        if (eName && !elements.some((element) => element.name === eName)) {
+          elements.push({ name: eName, maxOccurs: getMaxOccurs(n) });
+        }
         // Don't recurse into element bodies to avoid pulling in nested group refs.
       } else if (isXsdTag(t, "group")) {
         const ref = getAttrValue(n, "ref");
@@ -373,15 +385,15 @@ class XsdCstParser {
   }
 
   // Recursively expands an xs:group by name, resolving nested group refs.
-  private expandElementGroup(groupName: string, visited = new Set<string>()): string[] {
+  private expandElementGroup(groupName: string, visited = new Set<string>()): ChildElementInfo[] {
     if (visited.has(groupName)) return [];
     visited.add(groupName);
     const raw = this.rawElementGroups.get(groupName);
     if (!raw) return [];
-    const result: string[] = [...raw.elements];
+    const result: ChildElementInfo[] = [...raw.elements];
     for (const ref of raw.refs) {
-      for (const name of this.expandElementGroup(ref, new Set(visited))) {
-        if (!result.includes(name)) result.push(name);
+      for (const child of this.expandElementGroup(ref, new Set(visited))) {
+        if (!result.some((existing) => existing.name === child.name)) result.push(child);
       }
     }
     return result;
@@ -389,18 +401,20 @@ class XsdCstParser {
 
   // Collects the names of xs:element children reachable through
   // xs:sequence / xs:all / xs:choice / xs:group inside `node`.
-  private collectDirectElementNames(node: any): string[] {
-    const names: string[] = [];
+  private collectDirectElementNames(node: any): ChildElementInfo[] {
+    const children: ChildElementInfo[] = [];
     const collect = (n: any): void => {
       const tag = getTagName(n);
       if (isXsdTag(tag, "element")) {
         const childName = getAttrValue(n, "name") || getAttrValue(n, "ref");
-        if (childName && !names.includes(childName)) names.push(childName);
+        if (childName && !children.some((child) => child.name === childName)) {
+          children.push({ name: childName, maxOccurs: getMaxOccurs(n) });
+        }
       } else if (isXsdTag(tag, "group")) {
         const ref = getAttrValue(n, "ref");
         if (ref) {
-          for (const name of this.expandElementGroup(ref)) {
-            if (!names.includes(name)) names.push(name);
+          for (const child of this.expandElementGroup(ref)) {
+            if (!children.some((existing) => existing.name === child.name)) children.push(child);
           }
         }
       } else if (
@@ -421,7 +435,7 @@ class XsdCstParser {
         collect(child);
       }
     }
-    return names;
+    return children;
   }
 
   // Collects all xs:attribute and xs:attributeGroup ref members declared directly
@@ -485,6 +499,11 @@ export class XsdCompletionProvider {
 
   /** Returns valid child element names for the given parent element. */
   getChildren(elementName: string): string[] {
+    return (this.data.elements.get(elementName)?.children ?? []).map((child) => child.name);
+  }
+
+  /** Returns valid child elements, including their XSD maxOccurs limits. */
+  getChildElements(elementName: string): ChildElementInfo[] {
     return this.data.elements.get(elementName)?.children ?? [];
   }
 

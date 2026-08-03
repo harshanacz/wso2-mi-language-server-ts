@@ -76,6 +76,13 @@ describe("XsdCompletionProvider", () => {
   it("getChildren('unknown') returns []", () => {
     expect(provider.getChildren("unknown")).toEqual([]);
   });
+
+  it("captures maxOccurs, defaulting to 1 when it is absent", () => {
+    expect(provider.getChildElements("root")).toEqual([
+      { name: "child", maxOccurs: 1 },
+      { name: "item", maxOccurs: 1 },
+    ]);
+  });
 });
 
 // -------------------------------------------------------------------

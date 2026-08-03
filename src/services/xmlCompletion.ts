@@ -1,4 +1,4 @@
-import { XMLDocument } from "../parser/xmlNode.js";
+import { XMLDocument, XMLNode } from "../parser/xmlNode.js";
 import { Position, positionToOffset } from "../utils/positionUtils.js";
 
 /** A single completion suggestion returned to the editor. */
@@ -50,35 +50,57 @@ export function doComplete(
       // to suggest SIBLINGS (children of the parent); when in the content area we want
       // to suggest CHILDREN of the current node.
       let parentName: string | undefined;
+      let parentNode: XMLNode | undefined;
+      let incompleteChildNode: XMLNode | undefined;
       if (node.type === "element") {
         const nodeText = document.text.substring(node.startOffset, offset);
         const cursorIsInOpenTag = !nodeText.includes(">");
         if (cursorIsInOpenTag) {
           parentName =
             node.parent?.type === "element" ? node.parent.name : undefined;
+          parentNode = node.parent?.type === "element" ? node.parent : undefined;
+          incompleteChildNode = node;
         } else {
           parentName = node.name;
+          parentNode = node;
         }
       }
 
-      let names: string[];
+      let children: { name: string; maxOccurs: number | "unbounded" }[];
       if (parentName === undefined) {
         // Root-level context: prefer children of the top-level container element
         // (e.g. <definitions> in Synapse config) so only config-artifact elements
         // are offered rather than every globally-declared element including mediators.
-        names = schemaProvider.getChildren("definitions");
-        if (names.length === 0) names = schemaProvider.getAllElements();
+        children = schemaProvider.getChildElements("definitions");
+        if (children.length === 0) {
+          children = schemaProvider.getAllElements().map((name: string) => ({
+            name,
+            maxOccurs: "unbounded" as const,
+          }));
+        }
       } else {
         // Inside a known element: suggest only its schema-defined children.
         // No getAllElements() fallback — unknown or childless elements get nothing.
-        names = schemaProvider.getChildren(parentName);
+        children = schemaProvider.getChildElements(parentName);
       }
 
+      const existingChildCounts = new Map<string, number>();
+      for (const child of parentNode?.children ?? []) {
+        // The node currently being typed is not an existing occurrence yet.
+        if (child === incompleteChildNode || child.type !== "element" || !child.name) continue;
+        existingChildCounts.set(child.name, (existingChildCounts.get(child.name) ?? 0) + 1);
+      }
+      const availableChildren = children.filter(
+        (child) =>
+          child.maxOccurs === "unbounded" ||
+          (existingChildCounts.get(child.name) ?? 0) < child.maxOccurs
+      );
+
       return {
-        items: names.map((name: string) => ({
-          label: name,
+        items: availableChildren.map((child) => ({
+          label: child.name,
           kind: "element" as const,
-          insertText: `${name}>$0</${name}>`,
+          insertText: `${child.name}>$0</${child.name}>`,
         })),
         isIncomplete: false,
       };

@@ -129,6 +129,43 @@ describe("doComplete — XSD-aware element completions", () => {
   });
 });
 
+describe("doComplete — XSD child maxOccurs", () => {
+  const cardinalityXsd = `<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="project">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="once"/>
+        <xs:element name="twice" maxOccurs="2"/>
+        <xs:element name="many" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+  const provider = new XsdCompletionProvider(cardinalityXsd);
+
+  function completionLabels(text: string): string[] {
+    const doc = parseXMLDocument(uri, text);
+    return doComplete(doc, { line: 0, character: text.length }, provider).items.map((item) => item.label);
+  }
+
+  it("does not suggest a default maxOccurs=1 child after it exists", () => {
+    const labels = completionLabels("<project><once/><");
+    expect(labels).not.toContain("once");
+    expect(labels).toContain("twice");
+    expect(labels).toContain("many");
+  });
+
+  it("continues suggesting a bounded child until its limit is reached", () => {
+    expect(completionLabels("<project><twice/><")).toContain("twice");
+    expect(completionLabels("<project><twice/><twice/><")).not.toContain("twice");
+  });
+
+  it("continues suggesting an unbounded child after existing occurrences", () => {
+    expect(completionLabels("<project><many/><many/><")).toContain("many");
+  });
+});
+
 // ─── XSD-aware attribute completions ─────────────────────────────────────────
 
 describe("doComplete — XSD-aware attribute completions", () => {
