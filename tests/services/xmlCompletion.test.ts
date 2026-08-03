@@ -138,6 +138,9 @@ describe("doComplete — XSD child maxOccurs", () => {
         <xs:element name="once"/>
         <xs:element name="twice" maxOccurs="2"/>
         <xs:element name="many" maxOccurs="unbounded"/>
+        <xs:sequence maxOccurs="2">
+          <xs:element name="throughSequence"/>
+        </xs:sequence>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -163,6 +166,13 @@ describe("doComplete — XSD child maxOccurs", () => {
 
   it("continues suggesting an unbounded child after existing occurrences", () => {
     expect(completionLabels("<project><many/><many/><")).toContain("many");
+  });
+
+  it("honors occurrence limits inherited from an enclosing sequence", () => {
+    expect(completionLabels("<project><throughSequence/><")).toContain("throughSequence");
+    expect(
+      completionLabels("<project><throughSequence/><throughSequence/><")
+    ).not.toContain("throughSequence");
   });
 });
 
