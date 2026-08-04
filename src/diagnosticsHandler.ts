@@ -5,6 +5,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getLanguageService } from "./xmlLanguageService.js";
+import { filterDiagnostics, formatDiagnosticMessage } from "./utils/diagnosticsFilter.js";
 import * as fs from "fs";
 import * as path from "path";
 // @ts-ignore — local CJS bundle, no ESM wrapper
@@ -437,7 +438,7 @@ export function mapErrorsToDiagnostics(result: { parseErrors: any[]; schemaError
   }
 
   const xmlLines = text.split("\n");
-  return Array.from(uniqueErrors.values()).map((e: any) => {
+  const diagnostics = Array.from(uniqueErrors.values()).map((e: any) => {
     const line = e.line > 0 ? e.line - 1 : 0;
     const col = e.column > 0 ? e.column - 1 : 0;
     const lineText = xmlLines[line] ?? "";
@@ -450,50 +451,10 @@ export function mapErrorsToDiagnostics(result: { parseErrors: any[]; schemaError
       source: "wso2-mi-language-server",
     };
   });
-}
 
-/**
- * Removes redundant attribute and content-model diagnostics for elements that
- * are already reported as unknown ("no declaration found for element 'X'").
- * Keeping only the single "unknown element" error avoids noisy cascades like:
- *   - "attribute 'name' is not declared for element 'variable'"
- *   - "element 'variable' is not allowed for content model '(...)'"
- */
-function filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
-  // Step 1: collect element names that are outright unknown
-  const unknownElements = new Set<string>();
-  for (const d of diagnostics) {
-    const m = d.message.match(/no declaration found for element '([^']+)'/);
-    if (m) unknownElements.add(m[1]);
-  }
-
-  if (unknownElements.size === 0) return diagnostics;
-
-  // Step 2: drop attribute and content-model noise for those elements
-  const filtered = diagnostics.filter((d) => {
-    const msg = d.message;
-
-    // "attribute 'X' is not declared for element 'name'" — redundant when element is unknown
-    if (msg.includes("is not declared for element '") && msg.includes("attribute")) {
-      const m = msg.match(/is not declared for element '([^']+)'/);
-      if (m && unknownElements.has(m[1])) return false;
-    }
-
-    // "element 'name' is not allowed for content model '(...)'" — redundant when element is unknown
-    if (msg.includes("is not allowed for content model")) {
-      const m = msg.match(/element '([^']+)' is not allowed for content model/);
-      if (m && unknownElements.has(m[1])) return false;
-    }
-
-    return true;
-  });
-
-  // Step 3: deduplicate — Xerces can emit the same message twice for the same position
-  const seen = new Set<string>();
-  return filtered.filter((d) => {
-    const key = `${d.message}|${d.range.start.line}|${d.range.start.character}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const filtered = filterDiagnostics(diagnostics);
+  return filtered.map((d) => ({
+    ...d,
+    message: formatDiagnosticMessage(d.message),
+  }));
 }

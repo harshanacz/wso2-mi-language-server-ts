@@ -7,11 +7,22 @@ export interface AttributeInfo {
   required: boolean;   // use="required"
 }
 
+export interface ChildElementInfo {
+  name: string;
+  /** XSD defaults maxOccurs to 1 when the attribute is absent. */
+  maxOccurs: number | "unbounded";
+}
+
+interface ElementGroupReference {
+  name: string;
+  maxOccurs: number | "unbounded";
+}
+
 export interface ElementInfo {
   name: string;
   description: string;     // from xs:documentation
   attributes: AttributeInfo[];
-  children: string[];      // valid child element names
+  children: ChildElementInfo[]; // valid child elements and their occurrence limits
 }
 
 export interface SchemaCompletionData {
@@ -28,6 +39,23 @@ function getAttrValue(node: any, attrName: string): string {
     }
   }
   return "";
+}
+
+function getMaxOccurs(node: any): number | "unbounded" {
+  const value = getAttrValue(node, "maxOccurs");
+  if (value === "unbounded") return "unbounded";
+
+  const parsed = Number(value || "1");
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : 1;
+}
+
+function composeMaxOccurs(
+  outer: number | "unbounded",
+  inner: number | "unbounded"
+): number | "unbounded" {
+  if (outer === 0 || inner === 0) return 0;
+  if (outer === "unbounded" || inner === "unbounded") return "unbounded";
+  return outer * inner;
 }
 
 function getTextContent(node: any): string {
@@ -76,7 +104,7 @@ class XsdCstParser {
   //Temporary Caches
 
   // Maps complexType name → direct child element names, for type-ref resolution. LogMediator → ["property"]
-  private complexTypeChildren = new Map<string, string[]>();
+  private complexTypeChildren = new Map<string, ChildElementInfo[]>();
   // Maps complexType name → attribute list, for type-ref attribute resolution. LogMediator → [level, description]
   private complexTypeAttributes = new Map<string, AttributeInfo[]>();
   // Maps element name → type attribute value, for post-walk resolution. log → "LogMediator"
@@ -84,7 +112,7 @@ class XsdCstParser {
   // Maps attributeGroup name → { direct attrs, referenced group names }. commonAttrs → [description]
   private rawGroups = new Map<string, { attrs: AttributeInfo[]; refs: string[] }>();
   // Maps xs:group name → { direct element names, referenced group names }. mediatorGroup → [log, property]
-  private rawElementGroups = new Map<string, { elements: string[]; refs: string[] }>();
+  private rawElementGroups = new Map<string, { elements: ChildElementInfo[]; refs: ElementGroupReference[] }>();
 
   constructor(private cst: any) {}
 
@@ -131,11 +159,7 @@ class XsdCstParser {
 
       const children = this.complexTypeChildren.get(localType);
       if (children) {
-        for (const childName of children) {
-          if (!element.children.includes(childName)) {
-            element.children.push(childName);
-          }
-        }
+        for (const child of children) this.addChild(element, child);
       }
 
       const ctAttrs = this.complexTypeAttributes.get(localType);
@@ -145,12 +169,16 @@ class XsdCstParser {
     }
   }
 
-  private walk(node: any, parentElementName: string | null): void {
+  private walk(
+    node: any,
+    parentElementName: string | null,
+    enclosingMaxOccurs: number | "unbounded" = 1
+  ): void {
     const tagName = getTagName(node);
 
     if (isXsdTag(tagName, "element")) {
       //data.elements (stub) + elementTypeRefs (pointer)
-      this.handleElement(node, parentElementName);
+      this.handleElement(node, parentElementName, enclosingMaxOccurs);
     } else if (isXsdTag(tagName, "attribute")) {
       //data.elements[parent].attributes (inline)
       this.handleAttribute(node, parentElementName);
@@ -158,30 +186,48 @@ class XsdCstParser {
       //data.elements[parent].attributes (expanded from rawGroups)
       this.handleAttributeGroup(node, parentElementName);
     } else if (isXsdTag(tagName, "complexType")) {
-      this.handleComplexType(node, parentElementName);
+      this.handleComplexType(node, parentElementName, enclosingMaxOccurs);
     } else if (isXsdTag(tagName, "group")) {
-      this.handleGroup(node, parentElementName);
+      this.handleGroup(node, parentElementName, enclosingMaxOccurs);
     } else if (
       isXsdTag(tagName, "sequence") ||
       isXsdTag(tagName, "all") ||
       isXsdTag(tagName, "choice")
     ) {
       // Pass the current parent element name down into group containers.
-      this.recurseChildren(node, parentElementName);
+      this.recurseChildren(
+        node,
+        parentElementName,
+        composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(node))
+      );
     } else {
-      this.recurseChildren(node, parentElementName);
+      this.recurseChildren(node, parentElementName, enclosingMaxOccurs);
     }
   }
 
-  private recurseChildren(node: any, parentElementName: string | null): void {
+  private recurseChildren(
+    node: any,
+    parentElementName: string | null,
+    enclosingMaxOccurs: number | "unbounded" = 1
+  ): void {
     for (const content of node.children?.content ?? []) {
       for (const child of content.children?.element ?? []) {
-        this.walk(child, parentElementName);
+        this.walk(child, parentElementName, enclosingMaxOccurs);
       }
     }
   }
 
-  private handleElement(node: any, parentElementName: string | null): void {
+  private addChild(parent: ElementInfo, child: ChildElementInfo): void {
+    if (!parent.children.some((existing) => existing.name === child.name)) {
+      parent.children.push(child);
+    }
+  }
+
+  private handleElement(
+    node: any,
+    parentElementName: string | null,
+    enclosingMaxOccurs: number | "unbounded"
+  ): void {
     const name = getAttrValue(node, "name");
     const ref = getAttrValue(node, "ref");
     //<xs:element name="log" type="LogMediator" />
@@ -191,15 +237,18 @@ class XsdCstParser {
     if (!name && ref) {
       if (parentElementName !== null) {
         const parent = this.data.elements.get(parentElementName);
-        if (parent && !parent.children.includes(ref)) {
-          parent.children.push(ref);
+        if (parent) {
+          this.addChild(parent, {
+            name: ref,
+            maxOccurs: composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(node)),
+          });
         }
       }
       return;
     }
 
     if (!name) {
-      this.recurseChildren(node, parentElementName);
+      this.recurseChildren(node, parentElementName, enclosingMaxOccurs);
       return;
     }
 
@@ -219,8 +268,11 @@ class XsdCstParser {
 
     if (parentElementName !== null) {
       const parent = this.data.elements.get(parentElementName);
-      if (parent && !parent.children.includes(name)) {
-        parent.children.push(name);
+      if (parent) {
+        this.addChild(parent, {
+          name,
+          maxOccurs: composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(node)),
+        });
       }
     }
 
@@ -229,6 +281,8 @@ class XsdCstParser {
 
     if (existingIsPopulated) return;
 
+    // Child content is evaluated per occurrence of this element, not per occurrence
+    // of the element in its parent model group.
     this.recurseChildren(node, name);
   }
 
@@ -264,7 +318,11 @@ class XsdCstParser {
     }
   }
 
-  private handleComplexType(node: any, parentElementName: string | null): void {
+  private handleComplexType(
+    node: any,
+    parentElementName: string | null,
+    enclosingMaxOccurs: number | "unbounded"
+  ): void {
     // Top-level named complexType: snapshot children and attributes so that
     // xs:element type="X" declarations can be resolved after the walk.
     const typeName = getAttrValue(node, "name");
@@ -275,18 +333,26 @@ class XsdCstParser {
       this.complexTypeAttributes.set(typeName, this.collectComplexTypeAttributes(node));
     }
     // Always pass the current parent element name through.
-    this.recurseChildren(node, parentElementName);
+    this.recurseChildren(node, parentElementName, enclosingMaxOccurs);
   }
 
-  private handleGroup(node: any, parentElementName: string | null): void {
+  private handleGroup(
+    node: any,
+    parentElementName: string | null,
+    enclosingMaxOccurs: number | "unbounded"
+  ): void {
     const ref = getAttrValue(node, "ref");
     if (ref) {
       // Reference: expand the group and wire element names to the parent.
       if (parentElementName !== null) {
         const parent = this.data.elements.get(parentElementName);
         if (parent) {
-          for (const name of this.expandElementGroup(ref)) {
-            if (!parent.children.includes(name)) parent.children.push(name);
+          const groupMaxOccurs = composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(node));
+          for (const child of this.expandElementGroup(ref)) {
+            this.addChild(parent, {
+              ...child,
+              maxOccurs: composeMaxOccurs(groupMaxOccurs, child.maxOccurs),
+            });
           }
         }
       }
@@ -294,7 +360,7 @@ class XsdCstParser {
     } else {
       // Named definition: recurse so that inline xs:element declarations inside
       // the group are registered with their attributes.
-      this.recurseChildren(node, parentElementName);
+      this.recurseChildren(node, parentElementName, enclosingMaxOccurs);
     }
   }
 
@@ -334,21 +400,35 @@ class XsdCstParser {
     if (!isXsdTag(tag, "group")) return;
     const name = getAttrValue(node, "name");
     if (!name) return;
-    const elements: string[] = [];
-    const refs: string[] = [];
+    const elements: ChildElementInfo[] = [];
+    const refs: ElementGroupReference[] = [];
     
-    const collect = (n: any): void => {
+    const collect = (n: any, enclosingMaxOccurs: number | "unbounded" = 1): void => {
       const t = getTagName(n);
       if (isXsdTag(t, "element")) {
         const eName = getAttrValue(n, "name") || getAttrValue(n, "ref");
-        if (eName && !elements.includes(eName)) elements.push(eName);
+        if (eName && !elements.some((element) => element.name === eName)) {
+          elements.push({
+            name: eName,
+            maxOccurs: composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(n)),
+          });
+        }
         // Don't recurse into element bodies to avoid pulling in nested group refs.
       } else if (isXsdTag(t, "group")) {
         const ref = getAttrValue(n, "ref");
-        if (ref && !refs.includes(ref)) refs.push(ref);
+        if (ref && !refs.some((group) => group.name === ref)) {
+          refs.push({
+            name: ref,
+            maxOccurs: composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(n)),
+          });
+        }
       } else {
+        const childMaxOccurs =
+          isXsdTag(t, "sequence") || isXsdTag(t, "all") || isXsdTag(t, "choice")
+            ? composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(n))
+            : enclosingMaxOccurs;
         for (const c of n.children?.content ?? []) {
-          for (const cc of c.children?.element ?? []) collect(cc);
+          for (const cc of c.children?.element ?? []) collect(cc, childMaxOccurs);
         }
       }
     };
@@ -373,15 +453,20 @@ class XsdCstParser {
   }
 
   // Recursively expands an xs:group by name, resolving nested group refs.
-  private expandElementGroup(groupName: string, visited = new Set<string>()): string[] {
+  private expandElementGroup(groupName: string, visited = new Set<string>()): ChildElementInfo[] {
     if (visited.has(groupName)) return [];
     visited.add(groupName);
     const raw = this.rawElementGroups.get(groupName);
     if (!raw) return [];
-    const result: string[] = [...raw.elements];
+    const result: ChildElementInfo[] = [...raw.elements];
     for (const ref of raw.refs) {
-      for (const name of this.expandElementGroup(ref, new Set(visited))) {
-        if (!result.includes(name)) result.push(name);
+      for (const child of this.expandElementGroup(ref.name, new Set(visited))) {
+        if (!result.some((existing) => existing.name === child.name)) {
+          result.push({
+            ...child,
+            maxOccurs: composeMaxOccurs(ref.maxOccurs, child.maxOccurs),
+          });
+        }
       }
     }
     return result;
@@ -389,18 +474,29 @@ class XsdCstParser {
 
   // Collects the names of xs:element children reachable through
   // xs:sequence / xs:all / xs:choice / xs:group inside `node`.
-  private collectDirectElementNames(node: any): string[] {
-    const names: string[] = [];
-    const collect = (n: any): void => {
+  private collectDirectElementNames(node: any): ChildElementInfo[] {
+    const children: ChildElementInfo[] = [];
+    const collect = (n: any, enclosingMaxOccurs: number | "unbounded" = 1): void => {
       const tag = getTagName(n);
       if (isXsdTag(tag, "element")) {
         const childName = getAttrValue(n, "name") || getAttrValue(n, "ref");
-        if (childName && !names.includes(childName)) names.push(childName);
+        if (childName && !children.some((child) => child.name === childName)) {
+          children.push({
+            name: childName,
+            maxOccurs: composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(n)),
+          });
+        }
       } else if (isXsdTag(tag, "group")) {
         const ref = getAttrValue(n, "ref");
         if (ref) {
-          for (const name of this.expandElementGroup(ref)) {
-            if (!names.includes(name)) names.push(name);
+          const groupMaxOccurs = composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(n));
+          for (const child of this.expandElementGroup(ref)) {
+            if (!children.some((existing) => existing.name === child.name)) {
+              children.push({
+                ...child,
+                maxOccurs: composeMaxOccurs(groupMaxOccurs, child.maxOccurs),
+              });
+            }
           }
         }
       } else if (
@@ -410,7 +506,7 @@ class XsdCstParser {
       ) {
         for (const content of n.children?.content ?? []) {
           for (const child of content.children?.element ?? []) {
-            collect(child);
+            collect(child, composeMaxOccurs(enclosingMaxOccurs, getMaxOccurs(n)));
           }
         }
       }
@@ -421,7 +517,7 @@ class XsdCstParser {
         collect(child);
       }
     }
-    return names;
+    return children;
   }
 
   // Collects all xs:attribute and xs:attributeGroup ref members declared directly
@@ -485,6 +581,11 @@ export class XsdCompletionProvider {
 
   /** Returns valid child element names for the given parent element. */
   getChildren(elementName: string): string[] {
+    return (this.data.elements.get(elementName)?.children ?? []).map((child) => child.name);
+  }
+
+  /** Returns valid child elements, including their XSD maxOccurs limits. */
+  getChildElements(elementName: string): ChildElementInfo[] {
     return this.data.elements.get(elementName)?.children ?? [];
   }
 

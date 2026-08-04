@@ -76,6 +76,57 @@ describe("XsdCompletionProvider", () => {
   it("getChildren('unknown') returns []", () => {
     expect(provider.getChildren("unknown")).toEqual([]);
   });
+
+  it("captures maxOccurs, defaulting to 1 when it is absent", () => {
+    expect(provider.getChildElements("root")).toEqual([
+      { name: "child", maxOccurs: 1 },
+      { name: "item", maxOccurs: 1 },
+    ]);
+  });
+});
+
+describe("XsdCompletionProvider — effective maxOccurs through model groups", () => {
+  const xsd = `<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:group name="reused">
+    <xs:sequence>
+      <xs:element name="groupChild" maxOccurs="2"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="ViaType">
+    <xs:choice maxOccurs="2">
+      <xs:element name="typedChild" maxOccurs="3"/>
+      <xs:group ref="reused" maxOccurs="4"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence maxOccurs="2">
+        <xs:element name="inlineChild" maxOccurs="3"/>
+        <xs:group ref="reused" maxOccurs="5"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="typed" type="ViaType"/>
+</xs:schema>`;
+  const provider = new XsdCompletionProvider(xsd);
+
+  function maxOccurs(parent: string, child: string): number | "unbounded" | undefined {
+    return provider.getChildElements(parent).find((item) => item.name === child)?.maxOccurs;
+  }
+
+  it("multiplies enclosing sequence and direct element limits", () => {
+    expect(maxOccurs("root", "inlineChild")).toBe(6);
+  });
+
+  it("propagates limits inside a referenced group", () => {
+    expect(maxOccurs("root", "groupChild")).toBe(20);
+  });
+
+  it("propagates choice and group-reference limits for named complex types", () => {
+    expect(maxOccurs("typed", "typedChild")).toBe(6);
+    expect(maxOccurs("typed", "groupChild")).toBe(16);
+  });
 });
 
 // -------------------------------------------------------------------
