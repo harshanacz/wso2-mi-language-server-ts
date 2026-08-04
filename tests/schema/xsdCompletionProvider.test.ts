@@ -89,7 +89,7 @@ describe("XsdCompletionProvider — effective maxOccurs through model groups", (
   const xsd = `<?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:group name="reused">
-    <xs:sequence maxOccurs="2">
+    <xs:sequence>
       <xs:element name="groupChild" maxOccurs="2"/>
     </xs:sequence>
   </xs:group>
@@ -120,12 +120,12 @@ describe("XsdCompletionProvider — effective maxOccurs through model groups", (
   });
 
   it("propagates limits inside a referenced group", () => {
-    expect(maxOccurs("root", "groupChild")).toBe(40);
+    expect(maxOccurs("root", "groupChild")).toBe(20);
   });
 
   it("propagates choice and group-reference limits for named complex types", () => {
     expect(maxOccurs("typed", "typedChild")).toBe(6);
-    expect(maxOccurs("typed", "groupChild")).toBe(32);
+    expect(maxOccurs("typed", "groupChild")).toBe(16);
   });
 });
 

@@ -13,6 +13,8 @@ export function formatDiagnosticMessage(rawMessage: string): string {
     const elementName = contentModelMatch[1];
     const rawContentModel = contentModelMatch[2];
 
+    const isAllModel = /^All\(/i.test(rawContentModel);
+
     const cleanedElements = rawContentModel
       .replace(/^(?:All|Sequence|Choice)\((.*)\)$/i, "$1")
       .split(/[,|]/)
@@ -23,7 +25,7 @@ export function formatDiagnosticMessage(rawMessage: string): string {
       (name) => name === elementName || name.endsWith(":" + elementName)
     );
 
-    if (isDeclaredInModel) {
+    if (isAllModel && isDeclaredInModel) {
       return `Duplicate element '${elementName}' is not allowed (exceeds maxOccurs limit).`;
     } else {
       const allowedStr = cleanedElements.join(", ");
@@ -51,26 +53,27 @@ export function filterDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
     if (m) unknownElements.add(m[1]);
   }
 
-  if (unknownElements.size === 0) return diagnostics;
-
   // Step 2: drop attribute and content-model noise for those elements
-  const filtered = diagnostics.filter((d) => {
-    const msg = d.message;
+  let filtered = diagnostics;
+  if (unknownElements.size > 0) {
+    filtered = diagnostics.filter((d) => {
+      const msg = d.message;
 
-    // "attribute 'X' is not declared for element 'name'" — redundant when element is unknown
-    if (msg.includes("is not declared for element '") && msg.includes("attribute")) {
-      const m = msg.match(/is not declared for element '([^']+)'/);
-      if (m && unknownElements.has(m[1])) return false;
-    }
+      // "attribute 'X' is not declared for element 'name'" — redundant when element is unknown
+      if (msg.includes("is not declared for element '") && msg.includes("attribute")) {
+        const m = msg.match(/is not declared for element '([^']+)'/);
+        if (m && unknownElements.has(m[1])) return false;
+      }
 
-    // "element 'name' is not allowed for content model '(...)'" — redundant when element is unknown
-    if (msg.includes("is not allowed for content model")) {
-      const m = msg.match(/element '([^']+)' is not allowed for content model/);
-      if (m && unknownElements.has(m[1])) return false;
-    }
+      // "element 'name' is not allowed for content model '(...)'" — redundant when element is unknown
+      if (msg.includes("is not allowed for content model")) {
+        const m = msg.match(/element '([^']+)' is not allowed for content model/);
+        if (m && unknownElements.has(m[1])) return false;
+      }
 
-    return true;
-  });
+      return true;
+    });
+  }
 
   // Step 3: deduplicate — Xerces can emit the same message twice for the same position
   const seen = new Set<string>();
