@@ -197,10 +197,54 @@ describe("doComplete — XSD-aware attribute completions", () => {
     expect(labels).toContain("version");
   });
 
-  it("attribute insertText includes quotes placeholder", () => {
-    const result = doComplete(doc, { line: 0, character: 9 }, provider);
-    const versionItem = result.items.find((i) => i.label === "version");
-    expect(versionItem?.insertText).toContain('"');
+  it("filters out multiple attributes that are already specified on the tag", () => {
+    const multiAttrXsd = `<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="api">
+    <xs:complexType>
+      <xs:attribute name="context" type="xs:string"/>
+      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="xmlns" type="xs:string"/>
+      <xs:attribute name="transports" type="xs:string"/>
+      <xs:attribute name="trace" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+    const multiProvider = new XsdCompletionProvider(multiAttrXsd);
+    const xmlWithAttrs = '<api context="/d" name="d" xmlns="http://ws.apache.org/ns/synapse" ';
+    const testDoc = parseXMLDocument(uri, xmlWithAttrs);
+    const result = doComplete(testDoc, { line: 0, character: xmlWithAttrs.length }, multiProvider);
+    const labels = result.items.map((i) => i.label);
+
+    expect(labels).not.toContain("context");
+    expect(labels).not.toContain("name");
+    expect(labels).not.toContain("xmlns");
+    expect(labels).toContain("transports");
+    expect(labels).toContain("trace");
+  });
+
+  it("filters out attributes on multi-attribute tags like <resource>", () => {
+    const resourceXsd = `<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="resource">
+    <xs:complexType>
+      <xs:attribute name="methods" type="xs:string"/>
+      <xs:attribute name="uri-template" type="xs:string"/>
+      <xs:attribute name="url-mapping" type="xs:string"/>
+      <xs:attribute name="protocol" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+    const provider = new XsdCompletionProvider(resourceXsd);
+    const xml = '<resource methods="GET" uri-template="/" ';
+    const testDoc = parseXMLDocument(uri, xml);
+    const result = doComplete(testDoc, { line: 0, character: xml.length }, provider);
+    const labels = result.items.map((i) => i.label);
+
+    expect(labels).not.toContain("methods");
+    expect(labels).not.toContain("uri-template");
+    expect(labels).toContain("url-mapping");
+    expect(labels).toContain("protocol");
   });
 });
 
@@ -220,5 +264,13 @@ describe("doComplete — fallback attribute completions (no schema)", () => {
     const result = doComplete(doc, { line: 0, character: 9 });
     const labels = result.items.map((i) => i.label);
     expect(labels.some((l) => l.startsWith("xml"))).toBe(true);
+  });
+
+  it("filters out already specified fallback attributes", () => {
+    const fallbackDoc = parseXMLDocument(uri, '<root xmlns="http://foo" ');
+    const result = doComplete(fallbackDoc, { line: 0, character: 25 });
+    const labels = result.items.map((i) => i.label);
+    expect(labels).not.toContain("xmlns");
+    expect(labels).toContain("xml:lang");
   });
 });

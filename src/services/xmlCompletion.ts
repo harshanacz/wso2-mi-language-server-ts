@@ -136,6 +136,26 @@ export function doComplete(
         if (/^\s/.test(afterTagName)) {
           const tagName = tagMatch[1];
 
+          // Collect attribute names already specified in this tag before the cursor.
+          const existingAttrs = new Set<string>();
+
+          // 1. Regex search for completed attributes in the current open tag fragment (e.g. attr="val", attr='val', attr=val)
+          const attrRegex = /\b([\w:.-]+)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/g;
+          let match: RegExpExecArray | null;
+          while ((match = attrRegex.exec(afterTagName)) !== null) {
+            existingAttrs.add(match[1]);
+          }
+
+          // 2. Also check AST node for attributes whose names end before the current cursor offset
+          const node = document.findNodeAt(offset);
+          if (node && node.type === "element") {
+            for (const attr of node.attributes) {
+              if (attr.name && offset > attr.nameEnd) {
+                existingAttrs.add(attr.name);
+              }
+            }
+          }
+
           if (schemaProvider?.hasData()) {
             const schemaAttrs: any[] = schemaProvider.getAttributes(tagName) ?? [];
             const schemaAttrNames = new Set<string>(schemaAttrs.map((a: any) => a.name));
@@ -150,15 +170,22 @@ export function doComplete(
               (a) => !schemaAttrNames.has(a)
             );
 
+            const availableSchemaAttrs = schemaAttrs.filter(
+              (attr: any) => !existingAttrs.has(attr.name)
+            );
+            const availableExtraDocAttrs = extraDocAttrs.filter(
+              (attr) => !existingAttrs.has(attr)
+            );
+
             return {
               items: [
-                ...schemaAttrs.map((attr: any) => ({
+                ...availableSchemaAttrs.map((attr: any) => ({
                   label: attr.name,
                   kind: "attribute" as const,
                   insertText: `${attr.name}="$0"`,
                   ...(attr.type ? { detail: attr.type } : {}),
                 })),
-                ...extraDocAttrs.map((attr) => ({
+                ...availableExtraDocAttrs.map((attr) => ({
                   label: attr,
                   kind: "attribute" as const,
                   insertText: `${attr}="$0"`,
@@ -170,8 +197,9 @@ export function doComplete(
 
           // Fallback: static common XML attributes
           const attrs = ["xml:lang", "xml:space", "xmlns"];
+          const availableFallbackAttrs = attrs.filter((attr) => !existingAttrs.has(attr));
           return {
-            items: attrs.map((attr) => ({
+            items: availableFallbackAttrs.map((attr) => ({
               label: attr,
               kind: "attribute" as const,
               insertText: `${attr}="$0"`,
