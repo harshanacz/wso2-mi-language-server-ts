@@ -39,7 +39,7 @@ describe("STNode.elementNode", () => {
   });
 
   it("collects namespaces", () => {
-    expect(node(a).namespaces).toEqual({ xmlns: "urn:x" });
+    expect(Object.fromEntries(node(a).namespaces)).toEqual({ xmlns: "urn:x" });
   });
 
   it("captures and unescapes text content", () => {

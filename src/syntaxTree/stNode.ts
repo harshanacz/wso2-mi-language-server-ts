@@ -30,7 +30,7 @@ export class STNode {
   textNode?: string;
   selfClosed = false;
   tag?: string;
-  namespaces: Record<string, string> = {};
+  namespaces: Map<string, string> = new Map();
 
   /** Fills range, spaces, tag, text and namespaces from a DOM element (STNode.elementNode). */
   elementNode(node: DOMElement): void {
@@ -43,17 +43,23 @@ export class STNode {
       this.hasTextNode = true;
       this.textNode = unescapeXml(firstChild.getTextContent()) ?? undefined;
     }
-    this.namespaces = {};
+    this.namespaces = new Map();
     this.populateNamespaces(node);
   }
 
   addNamespace(prefix: string, uri: string): void {
-    this.namespaces[prefix] = uri;
+    this.namespaces.set(prefix, uri);
   }
 
   getTag(): string | undefined {
     return this.tag;
   }
+  setTag(tag: string): void { this.tag = tag; }
+  getRange(): TagRanges | undefined { return this.range; }
+  isSelfClosed(): boolean { return this.selfClosed; }
+  getTextNode(): string | undefined { return this.textNode; }
+  setTextNode(textNode: string): void { this.textNode = textNode; }
+  getNamespaces(): Map<string, string> { return this.namespaces; }
 
   // ── ranges ──
 
@@ -191,7 +197,7 @@ export class STNode {
   private populateNamespaces(node: DOMElement): void {
     for (const attribute of node.getAttributeNodes() as DOMAttr[]) {
       if (attribute.getName().startsWith("xmlns")) {
-        this.namespaces[attribute.getName()] = attribute.getValue() as string;
+        this.namespaces.set(attribute.getName(), attribute.getValue() as string);
       }
     }
   }

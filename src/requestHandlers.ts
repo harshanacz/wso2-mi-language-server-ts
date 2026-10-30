@@ -16,6 +16,9 @@ import { getLanguageService } from "./xmlLanguageService.js";
 import { DiagnosticsHandler } from "./diagnosticsHandler.js";
 import { expressionValidation } from "./expression/index.js";
 import type { ExpressionParam } from "./expression/index.js";
+import { syntaxTreeForDocument, artifactTypeForDocument } from "./syntaxTree/index.js";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import {
   getFileName,
   getDocumentPath,
@@ -55,6 +58,34 @@ export function registerRequestHandlers(
   connection.onRequest("synapse/expressionValidation", (param: ExpressionParam) => {
     connection.console.log("[synapse/expressionValidation] Triggered");
     return expressionValidation(param);
+  });
+
+  function readDocumentText(uri: string): string | null {
+    const open = documents.get(uri);
+    if (open) return open.getText();
+    try {
+      return readFileSync(fileURLToPath(uri), "utf-8");
+    } catch {
+      return null;
+    }
+  }
+
+  // Syntax tree of a Synapse artifact as JSON (same method and response shape as the Java server).
+  connection.onRequest("synapse/syntaxTree", (param: { uri: string }) => {
+    connection.console.log("[synapse/syntaxTree] Triggered");
+    const text = readDocumentText(param.uri);
+    if (text === null) return { syntaxTree: null, defFilePath: param.uri };
+    return syntaxTreeForDocument(text, param.uri);
+  });
+
+  connection.onRequest("synapse/getArtifactType", (param: { uri: string }) => {
+    let path = param.uri;
+    try {
+      path = param.uri.startsWith("file:") ? fileURLToPath(param.uri) : param.uri;
+    } catch {
+      /* keep the raw uri */
+    }
+    return artifactTypeForDocument(path, readDocumentText(param.uri));
   });
 
   connection.onCompletion((params: CompletionParams) => {

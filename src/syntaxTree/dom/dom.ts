@@ -236,6 +236,37 @@ export class DOMElement extends DOMNode {
   isOrphanEndTag(): boolean {
     return this.hasEndTag() && !this.hasStartTag();
   }
+
+  /** Resolves a prefix ("" = default namespace) by walking xmlns declarations up the tree. */
+  getNamespaceURI(prefix: string | null): string | null {
+    const attrName = prefix ? "xmlns:" + prefix : "xmlns";
+    let n: DOMElement | null = this;
+    while (n) {
+      if (n.hasAttribute(attrName)) return n.getAttribute(attrName);
+      n = n.getParentElement();
+    }
+    return null;
+  }
+
+  private findAttributeNS(namespaceURI: string | null, localName: string): DOMAttr | null {
+    for (const a of this.getAttributeNodes()) {
+      const name = a.getName();
+      const i = name.indexOf(":");
+      const local = i >= 0 ? name.substring(i + 1) : name;
+      if (local !== localName) continue;
+      const prefix = i >= 0 ? name.substring(0, i) : null;
+      const uri = prefix ? this.getNamespaceURI(prefix) : null;
+      if ((namespaceURI ?? null) === uri) return a;
+    }
+    return null;
+  }
+  hasAttributeNS(namespaceURI: string | null, localName: string): boolean {
+    return this.findAttributeNS(namespaceURI, localName) !== null;
+  }
+  getAttributeNS(namespaceURI: string | null, localName: string): string | null {
+    const a = this.findAttributeNS(namespaceURI, localName);
+    return a ? this.getAttribute(a.getName()) : null;
+  }
 }
 
 export abstract class DOMCharacterData extends DOMNode {
@@ -359,6 +390,16 @@ export class DOMDocument extends DOMNode {
       else hi = mid - 1;
     }
     return { line: lo, character: offset - starts[lo] };
+  }
+
+  offsetAt(position: Position): number {
+    const starts = this.getLineStarts();
+    if (position.line < 0 || position.line >= starts.length) {
+      throw new RangeError(`Bad location: line ${position.line} is out of range`);
+    }
+    const offset = starts[position.line] + position.character;
+    if (offset > this.text.length) throw new RangeError("Bad location");
+    return offset;
   }
 
   private getLineStarts(): number[] {
