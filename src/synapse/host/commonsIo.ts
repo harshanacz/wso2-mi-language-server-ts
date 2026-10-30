@@ -68,3 +68,37 @@ export const FilenameUtils = {
   },
   normalize: (p: string): string => p.replace(/\\/g, "/"),
 };
+
+const HTML4_ENTITIES: Record<string, string> = {
+  quot: '"', amp: "&", lt: "<", gt: ">", apos: "'", nbsp: " ", copy: "©", reg: "®", laquo: "«", raquo: "»",
+  eacute: "é", egrave: "è", agrave: "à", aacute: "á", uuml: "ü", ouml: "ö", auml: "ä",
+  szlig: "ß", ntilde: "ñ", ccedil: "ç", euro: "€", pound: "£", yen: "¥", cent: "¢",
+  hellip: "…", ndash: "–", mdash: "—", lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”",
+  bull: "•", trade: "™", times: "×", divide: "÷", deg: "°", plusmn: "±", micro: "µ",
+};
+
+/** org.apache.commons.text.StringEscapeUtils subset. Unknown entities are left untouched like commons-text does. */
+export const StringEscapeUtils = {
+  unescapeHtml4: (s: string | null): string | null => {
+    if (s === null || s === undefined) return null;
+    return s.replace(/&(#x[0-9a-fA-F]+|#[0-9]+|[A-Za-z][A-Za-z0-9]*);/g, (m, e: string) => {
+      if (e[0] === "#") {
+        const cp = e[1] === "x" || e[1] === "X" ? parseInt(e.substring(2), 16) : parseInt(e.substring(1), 10);
+        return Number.isNaN(cp) || cp > 0x10ffff ? m : String.fromCodePoint(cp);
+      }
+      return HTML4_ENTITIES[e] ?? m;
+    });
+  },
+  unescapeXml: (s: string | null): string | null => {
+    if (s === null || s === undefined) return null;
+    return s.replace(/&(#x[0-9a-fA-F]+|#[0-9]+|quot|apos|amp|lt|gt);/g, (m, e: string) => {
+      if (e[0] === "#") {
+        const cp = e[1] === "x" || e[1] === "X" ? parseInt(e.substring(2), 16) : parseInt(e.substring(1), 10);
+        return Number.isNaN(cp) ? m : String.fromCodePoint(cp);
+      }
+      return HTML4_ENTITIES[e];
+    });
+  },
+  escapeXml10: (s: string | null): string | null =>
+    s === null || s === undefined ? null : s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;"),
+};
