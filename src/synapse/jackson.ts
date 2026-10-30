@@ -24,7 +24,7 @@ export abstract class JsonNode implements Iterable<JsonNode> {
   elements(): JavaIterator<JsonNode> { return new JavaIterator([]); }
   [Symbol.iterator](): Iterator<JsonNode> { return [][Symbol.iterator](); }
   abstract toPlain(): unknown;
-  toString(): string { return JSON.stringify(this.toPlain()); }
+  toString(): string { return writeOrdered(this, 0) ?? ""; }
   toJSON(): unknown { return this.toPlain(); }
 }
 
@@ -136,6 +136,45 @@ import { parse as parseYaml } from "yaml";
 export class YAMLFactory {}
 export const JsonInclude = { Include: { NON_NULL: "NON_NULL", NON_EMPTY: "NON_EMPTY" } };
 
+/** JSON text keeping Map / ObjectNode member order (plain JS objects would move integer like keys first). */
+function writeOrdered(v: unknown, indent: number, depth = 0): string | undefined {
+  if (v === null) return "null";
+  if (v === undefined || typeof v === "function") return undefined;
+  const nl = (d: number) => (indent > 0 ? "\n" + " ".repeat(indent * d) : "");
+  const wrapObj = (parts: string[]) => (parts.length === 0 ? "{}" : "{" + parts.map((p) => nl(depth + 1) + p).join(",") + nl(depth) + "}");
+  const wrapArr = (parts: string[]) => (parts.length === 0 ? "[]" : "[" + parts.map((p) => nl(depth + 1) + p).join(",") + nl(depth) + "]");
+  if (v instanceof JsonNode) {
+    if (v instanceof ObjectNode) {
+      const parts: string[] = [];
+      for (const [k, x] of v.props) parts.push(JSON.stringify(k) + (indent > 0 ? ": " : ":") + (writeOrdered(x, indent, depth + 1) ?? "null"));
+      return wrapObj(parts);
+    }
+    if (v instanceof ArrayNode) return wrapArr(v.items.map((x) => writeOrdered(x, indent, depth + 1) ?? "null"));
+    if (v instanceof MissingNode) return undefined;
+    return JSON.stringify(v.toPlain());
+  }
+  if (v instanceof Map) {
+    const parts: string[] = [];
+    for (const [k, x] of v) {
+      const t = writeOrdered(x, indent, depth + 1);
+      if (t !== undefined) parts.push(JSON.stringify(String(k)) + (indent > 0 ? ": " : ":") + t);
+    }
+    return wrapObj(parts);
+  }
+  if (Array.isArray(v)) return wrapArr(v.map((x) => writeOrdered(x, indent, depth + 1) ?? "null"));
+  if (typeof v === "object") {
+    const maybe = v as { toJSON?: () => unknown };
+    if (typeof maybe.toJSON === "function") return writeOrdered(maybe.toJSON(), indent, depth);
+    const parts: string[] = [];
+    for (const [k, x] of Object.entries(v as object)) {
+      const t = writeOrdered(x, indent, depth + 1);
+      if (t !== undefined) parts.push(JSON.stringify(k) + (indent > 0 ? ": " : ":") + t);
+    }
+    return wrapObj(parts);
+  }
+  return JSON.stringify(v);
+}
+
 export class ObjectMapper {
   constructor(private readonly factory?: YAMLFactory) {}
   readTree(text: string): JsonNode {
@@ -147,13 +186,10 @@ export class ObjectMapper {
   createObjectNode(): ObjectNode { return new ObjectNode(); }
   createArrayNode(): ArrayNode { return new ArrayNode(); }
   writeValueAsString(v: unknown): string {
-    return JSON.stringify(v instanceof JsonNode ? v.toPlain() : v, (_k, x) => (x instanceof Map ? Object.fromEntries(x) : x));
+    return writeOrdered(v, 0) ?? "null";
   }
   writerWithDefaultPrettyPrinter(): { writeValueAsString(v: unknown): string } {
-    return {
-      writeValueAsString: (v: unknown) =>
-        JSON.stringify(v instanceof JsonNode ? v.toPlain() : v, (_k, x) => (x instanceof Map ? Object.fromEntries(x) : x), 2),
-    };
+    return { writeValueAsString: (v: unknown) => writeOrdered(v, 2) ?? "null" };
   }
   valueToTree(v: unknown): JsonNode { return fromPlainNode(JSON.parse(this.writeValueAsString(v))); }
   /** Reads JSON (or YAML with a YAMLFactory) from text or a file; `Map` as the target type gives a Map of the top level. */

@@ -27,7 +27,7 @@ export abstract class JsonElement {
   getAsBoolean(): boolean { throw new UnsupportedOperationException(this.constructor.name); }
   abstract deepCopy(): JsonElement;
   abstract toJSON(): unknown;
-  toString(): string { return JSON.stringify(this.toJSON()); }
+  toString(): string { return stringifyOrdered(this) ?? "null"; }
 }
 
 class IllegalStateException extends Error {}
@@ -40,11 +40,12 @@ export class JsonNull extends JsonElement {
 }
 
 export class JsonPrimitive extends JsonElement {
-  constructor(readonly value: string | number | boolean) { super(); }
+  /** `raw` keeps the source text of a number, like Gson's LazilyParsedNumber. */
+  constructor(readonly value: string | number | boolean, readonly raw?: string) { super(); }
   isString(): boolean { return typeof this.value === "string"; }
   isNumber(): boolean { return typeof this.value === "number"; }
   isBoolean(): boolean { return typeof this.value === "boolean"; }
-  getAsString(): string { return String(this.value); }
+  getAsString(): string { return this.raw ?? String(this.value); }
   getAsInt(): number {
     if (typeof this.value === "number") return Math.trunc(this.value);
     const n = Number(this.value);
@@ -149,12 +150,105 @@ export class JsonSyntaxException extends Error {}
 export const JsonParser = {
   parseString(s: string): JsonElement {
     try {
-      return fromPlain(JSON.parse(s));
+      return new OrderedJsonParser(s).parseDocument();
     } catch (e) {
       throw new JsonSyntaxException(String(e));
     }
   },
 };
+
+/** Strict JSON text to Gson tree: keeps member order (JS objects would move integer like keys first) and number text. */
+class OrderedJsonParser {
+  private i = 0;
+  constructor(private readonly s: string) {}
+  parseDocument(): JsonElement {
+    this.ws();
+    if (this.i >= this.s.length) return JsonNull.INSTANCE; // JsonParser.parse("") yields JsonNull
+    const v = this.value();
+    this.ws();
+    if (this.i < this.s.length) throw new Error("Did not consume the entire document.");
+    return v;
+  }
+  private ws(): void { while (this.i < this.s.length && " \t\n\r".includes(this.s[this.i])) this.i++; }
+  private value(): JsonElement {
+    this.ws();
+    const c = this.s[this.i];
+    if (c === "{") {
+      this.i++;
+      const o = new JsonObject();
+      this.ws();
+      if (this.s[this.i] === "}") { this.i++; return o; }
+      for (;;) {
+        this.ws();
+        if (this.s[this.i] !== '"') throw new Error("Expected name at " + this.i);
+        const k = this.str();
+        this.ws();
+        if (this.s[this.i++] !== ":") throw new Error("Expected ':' at " + (this.i - 1));
+        o.add(k, this.value());
+        this.ws();
+        const d = this.s[this.i++];
+        if (d === "}") return o;
+        if (d !== ",") throw new Error("Expected ',' or '}' at " + (this.i - 1));
+      }
+    }
+    if (c === "[") {
+      this.i++;
+      const a = new JsonArray();
+      this.ws();
+      if (this.s[this.i] === "]") { this.i++; return a; }
+      for (;;) {
+        a.add(this.value());
+        this.ws();
+        const d = this.s[this.i++];
+        if (d === "]") return a;
+        if (d !== ",") throw new Error("Expected ',' or ']' at " + (this.i - 1));
+      }
+    }
+    if (c === '"') return new JsonPrimitive(this.str());
+    if (this.s.startsWith("true", this.i)) { this.i += 4; return new JsonPrimitive(true); }
+    if (this.s.startsWith("false", this.i)) { this.i += 5; return new JsonPrimitive(false); }
+    if (this.s.startsWith("null", this.i)) { this.i += 4; return JsonNull.INSTANCE; }
+    const m = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(this.s.substring(this.i));
+    if (!m) throw new Error("Unexpected character at " + this.i);
+    this.i += m[0].length;
+    return new JsonPrimitive(Number(m[0]), m[0]);
+  }
+  private str(): string {
+    const start = this.i;
+    this.i++; // opening quote
+    while (this.i < this.s.length && this.s[this.i] !== '"') this.i += this.s[this.i] === "\\" ? 2 : 1;
+    if (this.i >= this.s.length) throw new Error("Unterminated string");
+    this.i++;
+    return JSON.parse(this.s.substring(start, this.i));
+  }
+}
+
+/** JSON text that keeps Map and JsonObject member order. `undefined` for values that have no JSON form. */
+export function stringifyOrdered(v: unknown): string | undefined {
+  if (v === null) return "null";
+  if (v === undefined || typeof v === "function") return undefined;
+  if (v instanceof JsonObject) {
+    const parts: string[] = [];
+    for (const [k, x] of v.asMap()) parts.push(JSON.stringify(k) + ":" + (stringifyOrdered(x) ?? "null"));
+    return "{" + parts.join(",") + "}";
+  }
+  if (v instanceof JsonArray) return "[" + v.asList().map((x) => stringifyOrdered(x) ?? "null").join(",") + "]";
+  if (v instanceof JsonPrimitive) {
+    if (typeof v.value === "number") return v.raw ?? JSON.stringify(v.value);
+    return JSON.stringify(v.value);
+  }
+  if (v instanceof JsonNull) return "null";
+  if (v instanceof Map) {
+    const parts: string[] = [];
+    for (const [k, x] of v) {
+      const t = stringifyOrdered(x);
+      if (t !== undefined) parts.push(JSON.stringify(String(k)) + ":" + t);
+    }
+    return "{" + parts.join(",") + "}";
+  }
+  if (Array.isArray(v)) return "[" + v.map((x) => stringifyOrdered(x) ?? "null").join(",") + "]";
+  return JSON.stringify(v);
+}
 
 /** Declared instance fields of a class chain in Gson order (the most derived class first), when known. */
 function fieldOrder(v: object): string[] | null {
@@ -172,10 +266,10 @@ function fieldOrder(v: object): string[] | null {
 /** Gson's serialisation rules: Map as object, objects with toJSON() (enums, Either) unwrapped, declared field order. */
 function plain(v: unknown, nulls: boolean): unknown {
   if (v === null || v === undefined) return nulls ? null : undefined;
-  if (v instanceof JsonElement) return v.toJSON();
+  if (v instanceof JsonElement) return v;
   if (v instanceof Map) {
-    const o: Record<string, unknown> = {};
-    v.forEach((x, k) => { const p = plain(x, nulls); if (p !== undefined) o[String(k)] = p; });
+    const o = new Map<string, unknown>();
+    v.forEach((x, k) => { const p = plain(x, nulls); if (p !== undefined) o.set(String(k), p); });
     return o;
   }
   if (v instanceof Set) return [...v].map((x) => plain(x, nulls) ?? null);
@@ -183,7 +277,7 @@ function plain(v: unknown, nulls: boolean): unknown {
   if (typeof v === "object") {
     const maybe = v as { toJSON?: () => unknown };
     if (typeof maybe.toJSON === "function") return plain(maybe.toJSON(), nulls);
-    const o: Record<string, unknown> = {};
+    const o = new Map<string, unknown>();
     const order = fieldOrder(v as object);
     const keys = order ?? Object.keys(v as object);
     for (const k of keys) {
@@ -191,7 +285,7 @@ function plain(v: unknown, nulls: boolean): unknown {
       if (typeof x === "function") continue;
       const p = plain(x, nulls);
       // fields named like their boolean getter (isX / isX()) are stored as _isX
-      if (p !== undefined) o[/^_is[A-Z]/.test(k) ? k.slice(1) : k] = p;
+      if (p !== undefined) o.set(/^_is[A-Z]/.test(k) ? k.slice(1) : k, p);
     }
     return o;
   }
@@ -201,7 +295,7 @@ function plain(v: unknown, nulls: boolean): unknown {
 
 export class Gson {
   constructor(private readonly nulls = false) {}
-  toJson(value: unknown): string { return JSON.stringify(plain(value, this.nulls)); }
+  toJson(value: unknown): string { return stringifyOrdered(plain(value, this.nulls)) ?? "null"; }
   toJsonTree(value: unknown): JsonElement { return fromPlain(plain(value, this.nulls)); }
   /** Rehydrates plain JSON into an instance of the given class (fields only, like Gson reflection). */
   fromJson<T>(json: string | JsonElement, type: new (...args: any[]) => T): T {
