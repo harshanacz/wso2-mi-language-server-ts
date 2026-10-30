@@ -20,6 +20,8 @@ export interface HostFileSystem {
   mkdirs(path: string): void;
   /** Deletes a file or a whole directory tree. Returns true when something was removed. */
   remove(path: string): boolean;
+  /** Sets the modification time of a file or directory (optional; java.nio Files.setLastModifiedTime). */
+  setMtime?(path: string, mtimeMs: number): void;
 }
 
 const utf8Decoder = new TextDecoder("utf-8");
@@ -68,6 +70,7 @@ export function normalizePath(path: string): string {
 export class MemoryFileSystem implements HostFileSystem {
   private files = new Map<string, { data: Uint8Array; mtimeMs: number }>();
   private dirs = new Set<string>(["/"]);
+  private dirMtimes = new Map<string, number>();
 
   private parentOf(path: string): string {
     const i = path.lastIndexOf("/");
@@ -81,7 +84,7 @@ export class MemoryFileSystem implements HostFileSystem {
       return { isFile: true, isDirectory: false, size: f.data.length, mtimeMs: f.mtimeMs };
     }
     if (this.dirs.has(p)) {
-      return { isFile: false, isDirectory: true, size: 0, mtimeMs: 0 };
+      return { isFile: false, isDirectory: true, size: 0, mtimeMs: this.dirMtimes.get(p) ?? 0 };
     }
     return null;
   }
@@ -111,6 +114,13 @@ export class MemoryFileSystem implements HostFileSystem {
     const p = normalizePath(path);
     this.mkdirs(this.parentOf(p));
     this.files.set(p, { data, mtimeMs: Date.now() });
+  }
+
+  setMtime(path: string, mtimeMs: number): void {
+    const p = normalizePath(path);
+    const f = this.files.get(p);
+    if (f) f.mtimeMs = mtimeMs;
+    else if (this.dirs.has(p)) this.dirMtimes.set(p, mtimeMs);
   }
 
   mkdirs(path: string): void {

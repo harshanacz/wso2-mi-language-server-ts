@@ -98,6 +98,7 @@ function fs() {
 }
 
 export class FileTime {
+  static fromMillis(ms: number): FileTime { return new FileTime(ms); }
   constructor(private readonly ms: number) {}
   toMillis(): number { return this.ms; }
 }
@@ -124,6 +125,11 @@ export const Files = {
     const s = fs().stat(p.toString());
     if (!s) throw new NoSuchFileException(p.toString());
     return new FileTime(s.mtimeMs);
+  },
+  setLastModifiedTime: (p: Path | string, t: FileTime): Path => {
+    if (!fs().stat(p.toString())) throw new NoSuchFileException(p.toString());
+    fs().setMtime?.(p.toString(), t.toMillis());
+    return p instanceof Path ? p : Path.fromString(p);
   },
   readString: (p: Path | string): string => {
     if (!fs().stat(p.toString())) throw new NoSuchFileException(p.toString());

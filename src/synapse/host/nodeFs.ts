@@ -43,4 +43,9 @@ export class NodeFileSystem implements HostFileSystem {
     nodeFs.rmSync(path, { recursive: true, force: true });
     return true;
   }
+
+  setMtime(path: string, mtimeMs: number): void {
+    const t = mtimeMs / 1000;
+    nodeFs.utimesSync(path, t, t);
+  }
 }
