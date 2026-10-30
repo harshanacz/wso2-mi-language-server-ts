@@ -125,8 +125,12 @@ describe("arithmetic operand types", () => {
 describe("array index", () => {
   it("floating-point index warns", () => {
     const errors = v("payload[1.5]");
-    expect(errors.some((e) => e.warning && e.message.includes("Array index should be an integer"))).toBe(true);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors.some((e) => e.message.includes("floating-point"))).toBe(true);
+    expect(errors.every((e) => e.warning)).toBe(true);
   });
+  it("integer index no warning", () => ok("payload[1]"));
+  it("zero index no warning", () => ok("payload[0]"));
 });
 
 describe("synapse/expressionValidation handler", () => {
