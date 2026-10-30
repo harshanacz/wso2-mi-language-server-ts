@@ -5,6 +5,8 @@ import { RewriteRuleActionType } from "./RewriteRuleActionType.js";
 import { STNode } from "../../../../stNode.js";
 
 export class RewriteRewriteruleAction extends STNode {
+  static readonly __fields: string[] = ["value", "xpath", "regex", "type", "fragment"];
+
   value?: string;
 
   xpath?: string;

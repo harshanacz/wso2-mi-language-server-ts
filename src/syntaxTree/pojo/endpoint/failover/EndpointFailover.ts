@@ -4,6 +4,8 @@ import { EndpointFailoverEndpoint } from "./EndpointFailoverEndpoint.js";
 import { STNode } from "../../../stNode.js";
 
 export class EndpointFailover extends STNode {
+  static readonly __fields: string[] = ["endpoint", "dynamic", "buildMessage"];
+
   endpoint?: EndpointFailoverEndpoint[];
 
   dynamic: boolean = false;

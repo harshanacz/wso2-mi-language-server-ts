@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/other/entitlement/EntitlementServiceClient.java by the java2ts converter (see tools/java2ts).
 
 export class EntitlementServiceClient {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly soap = new EntitlementServiceClient("soap", 0);

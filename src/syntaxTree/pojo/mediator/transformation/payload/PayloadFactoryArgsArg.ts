@@ -4,6 +4,8 @@ import { EvaluatorType } from "./EvaluatorType.js";
 import { STNode } from "../../../../stNode.js";
 
 export class PayloadFactoryArgsArg extends STNode {
+  static readonly __fields: string[] = ["value", "evaluator", "expression", "literal"];
+
   value?: string;
 
   evaluator?: EvaluatorType;

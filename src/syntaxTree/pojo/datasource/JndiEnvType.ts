@@ -4,6 +4,8 @@ import { PropertyType } from "./PropertyType.js";
 import { STNode } from "../../stNode.js";
 
 export class JndiEnvType extends STNode {
+  static readonly __fields: string[] = ["property"];
+
   property?: PropertyType[];
 
   getProperty(): PropertyType[] {

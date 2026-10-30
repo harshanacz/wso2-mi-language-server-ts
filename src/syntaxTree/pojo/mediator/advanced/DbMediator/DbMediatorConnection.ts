@@ -4,6 +4,8 @@ import { DbMediatorConnectionPool } from "./DbMediatorConnectionPool.js";
 import { STNode } from "../../../../stNode.js";
 
 export class DbMediatorConnection extends STNode {
+  static readonly __fields: string[] = ["pool"];
+
   pool?: DbMediatorConnectionPool;
 
   getPool(): DbMediatorConnectionPool {

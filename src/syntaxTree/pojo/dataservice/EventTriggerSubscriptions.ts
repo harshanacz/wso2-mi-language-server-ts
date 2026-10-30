@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class EventTriggerSubscriptions extends STNode {
+  static readonly __fields: string[] = ["subscription"];
+
   subscription?: STNode;
 
   getSubscription(): STNode {

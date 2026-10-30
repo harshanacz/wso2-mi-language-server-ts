@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { MediatorProperty } from "../core/MediatorProperty.js";
 
 export class Jsontransform extends Mediator {
+  static readonly __fields: string[] = ["property", "schema", "description", "traceFilter"];
+
   property?: MediatorProperty[];
 
   schema?: string;

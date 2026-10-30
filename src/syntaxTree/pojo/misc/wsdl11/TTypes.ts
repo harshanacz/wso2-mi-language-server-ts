@@ -3,5 +3,7 @@
 import { TExtensibleDocumented } from "./TExtensibleDocumented.js";
 
 export class TTypes extends TExtensibleDocumented {
+  static readonly __fields: string[] = [];
+
 
 }

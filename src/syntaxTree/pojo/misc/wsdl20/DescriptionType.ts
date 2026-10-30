@@ -3,6 +3,8 @@
 import { ExtensibleDocumentedType } from "./ExtensibleDocumentedType.js";
 
 export class DescriptionType extends ExtensibleDocumentedType {
+  static readonly __fields: string[] = ["importOrIncludeOrTypes", "targetNamespace"];
+
   importOrIncludeOrTypes?: any[];
 
   targetNamespace?: string;

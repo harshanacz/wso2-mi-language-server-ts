@@ -3,6 +3,8 @@
 import { Mediator } from "../Mediator.js";
 
 export class Loopback extends Mediator {
+  static readonly __fields: string[] = ["description", "traceFilter"];
+
   description?: string;
 
   traceFilter?: string;

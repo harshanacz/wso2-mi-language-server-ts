@@ -3,5 +3,7 @@
 import { STNode } from "../../../../stNode.js";
 
 export class EntitlementServiceObligations extends STNode {
+  static readonly __fields: string[] = ["any"];
+
   any?: any[];
 }

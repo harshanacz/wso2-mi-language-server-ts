@@ -5,6 +5,8 @@ import { JndiConfigType } from "./JndiConfigType.js";
 import { STNode } from "../../stNode.js";
 
 export class DatasourceType extends STNode {
+  static readonly __fields: string[] = ["name", "description", "jndiConfig", "definition"];
+
   name?: STNode;
 
   description?: STNode;

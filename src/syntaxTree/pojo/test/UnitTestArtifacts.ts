@@ -7,6 +7,8 @@ import { TestRegistryResources } from "./TestRegistryResources.js";
 import { TestSupportiveArtifacts } from "./TestSupportiveArtifacts.js";
 
 export class UnitTestArtifacts extends STNode {
+  static readonly __fields: string[] = ["testArtifact", "supportiveArtifacts", "registryResources", "connectorResources"];
+
   testArtifact?: TestArtifact;
 
   supportiveArtifacts?: TestSupportiveArtifacts;

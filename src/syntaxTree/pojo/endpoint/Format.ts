@@ -3,6 +3,8 @@
 import { get } from "../../javaCompat.js";
 
 export class Format {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly rest = new Format("rest", 0);

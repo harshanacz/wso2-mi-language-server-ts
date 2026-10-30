@@ -4,6 +4,8 @@ import { ConditionalRouterConditionalRoute } from "./ConditionalRouterConditiona
 import { Mediator } from "../../Mediator.js";
 
 export class ConditionalRouter extends Mediator {
+  static readonly __fields: string[] = ["conditionalRoute", "continueAfter", "description"];
+
   conditionalRoute?: ConditionalRouterConditionalRoute[];
 
   continueAfter: boolean = false;

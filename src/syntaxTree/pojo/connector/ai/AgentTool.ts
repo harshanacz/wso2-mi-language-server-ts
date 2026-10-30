@@ -4,6 +4,8 @@ import { Mediator } from "../../mediator/Mediator.js";
 import { STNode } from "../../../stNode.js";
 
 export class AgentTool extends STNode {
+  static readonly __fields: string[] = ["name", "template", "description", "resultExpression", "mediator", "templatePath", "mcpConnection", "isMcpTool"];
+
   name?: string;
 
   template?: string;

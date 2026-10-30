@@ -5,6 +5,8 @@ import { TBindingOperationMessage } from "./TBindingOperationMessage.js";
 import { TExtensibleDocumented } from "./TExtensibleDocumented.js";
 
 export class TBindingOperation extends TExtensibleDocumented {
+  static readonly __fields: string[] = ["input", "output", "fault", "name"];
+
   input?: TBindingOperationMessage;
 
   output?: TBindingOperationMessage;

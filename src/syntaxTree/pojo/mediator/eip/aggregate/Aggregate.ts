@@ -4,6 +4,8 @@ import { CorrelateOnOrCompleteConditionOrOnComplete } from "./CorrelateOnOrCompl
 import { Mediator } from "../../Mediator.js";
 
 export class Aggregate extends Mediator {
+  static readonly __fields: string[] = ["correlateOnOrCompleteConditionOrOnComplete", "description", "id", "traceFilter"];
+
   correlateOnOrCompleteConditionOrOnComplete?: CorrelateOnOrCompleteConditionOrOnComplete;
 
   description?: string;

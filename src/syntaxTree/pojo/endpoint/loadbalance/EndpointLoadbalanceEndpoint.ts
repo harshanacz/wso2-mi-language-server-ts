@@ -3,5 +3,7 @@
 import { ChildEndpoint } from "../ChildEndpoint.js";
 
 export class EndpointLoadbalanceEndpoint extends ChildEndpoint {
+  static readonly __fields: string[] = [];
+
 
 }

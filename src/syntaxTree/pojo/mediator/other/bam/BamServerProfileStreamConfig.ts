@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class BamServerProfileStreamConfig extends STNode {
+  static readonly __fields: string[] = ["name", "version"];
+
   name?: string;
 
   version?: string;

@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/core/call/CallSourceType.java by the java2ts converter (see tools/java2ts).
 
 export class CallSourceType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly custom = new CallSourceType("custom", 0);

@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/transformation/enrich/TargetEnrichAction.java by the java2ts converter (see tools/java2ts).
 
 export class TargetEnrichAction {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly replace = new TargetEnrichAction("replace", 0);

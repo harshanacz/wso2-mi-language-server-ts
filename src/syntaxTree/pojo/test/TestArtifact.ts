@@ -4,6 +4,8 @@ import { Artifact } from "./Artifact.js";
 import { STNode } from "../../stNode.js";
 
 export class TestArtifact extends STNode {
+  static readonly __fields: string[] = ["artifact"];
+
   artifact?: Artifact;
 
   getArtifact(): Artifact {

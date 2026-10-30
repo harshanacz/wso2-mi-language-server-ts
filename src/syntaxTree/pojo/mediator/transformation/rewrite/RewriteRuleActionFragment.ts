@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/transformation/rewrite/RewriteRuleActionFragment.java by the java2ts converter (see tools/java2ts).
 
 export class RewriteRuleActionFragment {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly protocol = new RewriteRuleActionFragment("protocol", 0);

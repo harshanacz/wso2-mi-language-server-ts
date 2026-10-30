@@ -4,6 +4,8 @@ import { STNode } from "../../stNode.js";
 import { TestRegistryResource } from "./TestRegistryResource.js";
 
 export class TestRegistryResources extends STNode {
+  static readonly __fields: string[] = ["registryResources"];
+
   registryResources?: TestRegistryResource[];
 
   getRegistryResources(): TestRegistryResource[] {

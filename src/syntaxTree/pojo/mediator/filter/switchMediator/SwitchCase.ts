@@ -4,6 +4,8 @@ import { Mediator } from "../../Mediator.js";
 import { STNode } from "../../../../stNode.js";
 
 export class SwitchCase extends STNode {
+  static readonly __fields: string[] = ["mediatorList", "regex"];
+
   mediatorList?: Mediator[];
 
   regex?: string;

@@ -5,6 +5,8 @@ import { CallQuery } from "./CallQuery.js";
 import { Element } from "./Element.js";
 
 export class ResultElements {
+  static readonly __fields: string[] = ["element", "attribute", "call_query"];
+
   element?: Element | undefined;
 
   attribute?: Attribute | undefined;

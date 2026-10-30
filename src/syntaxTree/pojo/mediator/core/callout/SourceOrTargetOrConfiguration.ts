@@ -7,6 +7,8 @@ import { CalloutTarget } from "./CalloutTarget.js";
 import { STNode } from "../../../../stNode.js";
 
 export class SourceOrTargetOrConfiguration extends STNode {
+  static readonly __fields: string[] = ["source", "target", "configuration", "enableSec"];
+
   source?: CalloutSource | undefined;
 
   target?: CalloutTarget | undefined;

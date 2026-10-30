@@ -4,6 +4,8 @@ import { Assertion } from "./Assertion.js";
 import { STNode } from "../../stNode.js";
 
 export class TestCaseAssertions extends STNode {
+  static readonly __fields: string[] = ["assertions"];
+
   assertions?: Assertion[];
 
   getAssertions(): Assertion[] {

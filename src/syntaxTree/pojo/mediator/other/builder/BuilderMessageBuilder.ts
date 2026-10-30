@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class BuilderMessageBuilder extends STNode {
+  static readonly __fields: string[] = ["contentType", "clazz", "formatterClass"];
+
   contentType?: string;
 
   clazz?: string;

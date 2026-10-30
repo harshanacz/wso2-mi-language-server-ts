@@ -3,6 +3,8 @@
 import { Mediator } from "../Mediator.js";
 
 export class OauthService extends Mediator {
+  static readonly __fields: string[] = ["remoteServiceUrl", "username", "password", "description", "traceFilter"];
+
   remoteServiceUrl?: string;
 
   username?: string;

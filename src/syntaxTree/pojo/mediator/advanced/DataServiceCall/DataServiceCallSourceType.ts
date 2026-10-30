@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/advanced/DataServiceCall/DataServiceCallSourceType.java by the java2ts converter (see tools/java2ts).
 
 export class DataServiceCallSourceType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly inline = new DataServiceCallSourceType("inline", 0);

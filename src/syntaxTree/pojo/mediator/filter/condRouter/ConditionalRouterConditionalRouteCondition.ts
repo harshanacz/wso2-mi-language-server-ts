@@ -4,6 +4,8 @@ import { Equal } from "../../../misc/evaluators/Equal.js";
 import { STNode } from "../../../../stNode.js";
 
 export class ConditionalRouterConditionalRouteCondition extends STNode {
+  static readonly __fields: string[] = ["equal"];
+
   equal?: Equal;
 
   getEqual(): Equal {

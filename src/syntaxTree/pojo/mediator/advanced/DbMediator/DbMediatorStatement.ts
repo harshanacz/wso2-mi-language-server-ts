@@ -5,6 +5,8 @@ import { DbMediatorStatementResult } from "./DbMediatorStatementResult.js";
 import { STNode } from "../../../../stNode.js";
 
 export class DbMediatorStatement extends STNode {
+  static readonly __fields: string[] = ["sql", "parameter", "result"];
+
   sql?: string;
 
   parameter?: DbMediatorStatementParameter[];

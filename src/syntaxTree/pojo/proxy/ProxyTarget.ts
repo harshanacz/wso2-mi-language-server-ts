@@ -5,6 +5,8 @@ import { STNode } from "../../stNode.js";
 import { Sequence } from "../misc/common/Sequence.js";
 
 export class ProxyTarget extends STNode {
+  static readonly __fields: string[] = ["inSequence", "outSequence", "faultSequence", "endpoint", "inSequenceAttribute", "outSequenceAttribute", "faultSequenceAttribute", "endpointAttribute"];
+
   inSequence?: Sequence;
 
   outSequence?: Sequence;

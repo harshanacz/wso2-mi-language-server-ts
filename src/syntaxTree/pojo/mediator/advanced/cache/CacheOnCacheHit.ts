@@ -4,6 +4,8 @@ import { Mediator } from "../../Mediator.js";
 import { STNode } from "../../../../stNode.js";
 
 export class CacheOnCacheHit extends STNode {
+  static readonly __fields: string[] = ["sequence", "mediatorList"];
+
   sequence?: string;
 
   mediatorList?: Mediator[];

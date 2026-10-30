@@ -12,6 +12,8 @@ import { Optimize } from "./Optimize.js";
 import { STNode } from "../../stNode.js";
 
 export class DefaultEndpoint extends STNode {
+  static readonly __fields: string[] = ["enableSec", "enableRM", "enableAddressing", "timeout", "suspendOnFailure", "markForSuspension", "format", "optimize", "encoding", "statistics", "trace"];
+
   enableSec?: EndpointEnableSec;
 
   enableRM?: EndpointEnableRM;

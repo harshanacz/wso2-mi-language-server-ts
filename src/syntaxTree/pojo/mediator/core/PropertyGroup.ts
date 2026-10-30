@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { Property } from "./Property.js";
 
 export class PropertyGroup extends Mediator {
+  static readonly __fields: string[] = ["property", "description", "traceFilter"];
+
   property?: Property[];
 
   description?: string;

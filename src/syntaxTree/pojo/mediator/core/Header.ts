@@ -4,6 +4,8 @@ import { HeaderScope } from "./HeaderScope.js";
 import { Mediator } from "../Mediator.js";
 
 export class Header extends Mediator {
+  static readonly __fields: string[] = ["any", "name", "action", "scope", "description", "value", "expression", "traceFilter"];
+
   any?: any;
 
   name?: string;

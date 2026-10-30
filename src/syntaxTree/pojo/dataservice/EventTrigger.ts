@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class EventTrigger extends STNode {
+  static readonly __fields: string[] = ["eventTriggerElements", "id", "language"];
+
   eventTriggerElements?: STNode[];
 
   id?: string;

@@ -8,6 +8,8 @@ import { Mediator } from "../../Mediator.js";
 import { STNode } from "../../../../stNode.js";
 
 export class Makefault extends Mediator {
+  static readonly __fields: string[] = ["code", "reason", "node", "role", "detail", "version", "response", "description", "traceFilter"];
+
   code?: MakefaultCode;
 
   reason?: MakefaultReason;

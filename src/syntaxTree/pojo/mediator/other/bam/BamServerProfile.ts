@@ -4,6 +4,8 @@ import { BamServerProfileStreamConfig } from "./BamServerProfileStreamConfig.js"
 import { STNode } from "../../../../stNode.js";
 
 export class BamServerProfile extends STNode {
+  static readonly __fields: string[] = ["streamConfig", "name"];
+
   streamConfig?: BamServerProfileStreamConfig;
 
   name?: string;

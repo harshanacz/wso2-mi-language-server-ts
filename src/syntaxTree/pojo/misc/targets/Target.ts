@@ -5,6 +5,8 @@ import { STNode } from "../../../stNode.js";
 import { Sequence } from "../common/Sequence.js";
 
 export class Target extends STNode {
+  static readonly __fields: string[] = ["sequence", "endpoint", "sequenceAttribute", "endpointAttribute", "to", "soapAction"];
+
   sequence?: Sequence;
 
   endpoint?: NamedEndpoint;

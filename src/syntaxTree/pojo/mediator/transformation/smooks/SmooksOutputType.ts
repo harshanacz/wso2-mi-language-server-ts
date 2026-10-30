@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/transformation/smooks/SmooksOutputType.java by the java2ts converter (see tools/java2ts).
 
 export class SmooksOutputType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly text = new SmooksOutputType("text", 0);

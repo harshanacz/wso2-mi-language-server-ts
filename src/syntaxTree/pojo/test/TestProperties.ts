@@ -4,6 +4,8 @@ import { STNode } from "../../stNode.js";
 import { TestProperty } from "./TestProperty.js";
 
 export class TestProperties extends STNode {
+  static readonly __fields: string[] = ["properties"];
+
   properties?: TestProperty[];
 
   constructor() {

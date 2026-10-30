@@ -14,6 +14,8 @@ import { STNode } from "../../stNode.js";
 import { WSDLEndpoint } from "./wsdl/WSDLEndpoint.js";
 
 export class Endpoint extends STNode {
+  static readonly __fields: string[] = ["_default", "http", "address", "wsdl", "loadbalance", "session", "failover", "recipientlist", "property", "parameter", "description", "key", "keyExpression", "template", "uri", "type"];
+
   _default?: DefaultEndpoint;
 
   http?: EndpointHttp;

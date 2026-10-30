@@ -4,6 +4,8 @@ import { PublishEventAttributesArbitraryAttribute } from "./PublishEventAttribut
 import { STNode } from "../../../../stNode.js";
 
 export class PublishEventAttributesArbitrary extends STNode {
+  static readonly __fields: string[] = ["attributes"];
+
   attributes?: PublishEventAttributesArbitraryAttribute[];
 
   getAttributes(): PublishEventAttributesArbitraryAttribute[] {

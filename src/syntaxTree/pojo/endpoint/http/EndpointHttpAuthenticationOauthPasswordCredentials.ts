@@ -4,6 +4,8 @@ import { EndpointHttpAuthenticationOauthRequestParameters } from "./EndpointHttp
 import { STNode } from "../../../stNode.js";
 
 export class EndpointHttpAuthenticationOauthPasswordCredentials extends STNode {
+  static readonly __fields: string[] = ["username", "password", "clientId", "clientSecret", "refreshToken", "tokenUrl", "requestParameters", "authMode"];
+
   username?: STNode;
 
   password?: STNode;

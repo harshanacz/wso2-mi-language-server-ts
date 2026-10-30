@@ -5,6 +5,8 @@ import { Mediator } from "./mediator/Mediator.js";
 import { STNode } from "../stNode.js";
 
 export class NamedSequence extends STNode {
+  static readonly __fields: string[] = ["mediatorList", "name", "onError", "description", "statistics", "trace"];
+
   mediatorList?: Mediator[];
 
   name?: string;

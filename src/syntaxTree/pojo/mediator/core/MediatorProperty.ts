@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class MediatorProperty extends STNode {
+  static readonly __fields: string[] = ["otherAttributes", "content", "name", "value", "expression"];
+
   otherAttributes?: any;
 
   content?: any[];

@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/advanced/cache/CacheScope.java by the java2ts converter (see tools/java2ts).
 
 export class CacheScope {
+  static readonly __fields: string[] = ["value"];
+
   value: string;
   getValue(): string {
     return this.value;

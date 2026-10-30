@@ -4,6 +4,8 @@ import { ProxyPolicyType } from "./ProxyPolicyType.js";
 import { STNode } from "../../stNode.js";
 
 export class ProxyPolicy extends STNode {
+  static readonly __fields: string[] = ["key", "type"];
+
   key?: string;
 
   type?: ProxyPolicyType;

@@ -4,6 +4,8 @@ import { EndpointOrMember } from "./EndpointOrMember.js";
 import { STNode } from "../../../stNode.js";
 
 export class EndpointLoadbalance extends STNode {
+  static readonly __fields: string[] = ["endpointOrMember", "algorithm", "failover", "policy", "buildMessage"];
+
   endpointOrMember?: EndpointOrMember[];
 
   algorithm?: string;

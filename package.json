@@ -13,8 +13,10 @@
   "dependencies": {
     "@xml-tools/parser": "^1.0.11",
     "antlr4ng": "^3.0.16",
+    "fflate": "^0.8.3",
     "vscode-languageserver": "^9.0.1",
-    "vscode-languageserver-textdocument": "^1.0.12"
+    "vscode-languageserver-textdocument": "^1.0.12",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

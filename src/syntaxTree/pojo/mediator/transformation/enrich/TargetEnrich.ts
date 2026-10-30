@@ -5,6 +5,8 @@ import { TargetEnrichAction } from "./TargetEnrichAction.js";
 import { TargetEnrichType } from "./TargetEnrichType.js";
 
 export class TargetEnrich extends STNode {
+  static readonly __fields: string[] = ["action", "type", "xpath", "property"];
+
   action?: TargetEnrichAction;
 
   type?: TargetEnrichType;

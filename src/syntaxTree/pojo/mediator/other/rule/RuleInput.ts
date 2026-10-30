@@ -4,6 +4,8 @@ import { RuleInputFact } from "./RuleInputFact.js";
 import { STNode } from "../../../../stNode.js";
 
 export class RuleInput extends STNode {
+  static readonly __fields: string[] = ["fact", "namespace", "wrapperElementName"];
+
   fact?: RuleInputFact[];
 
   namespace?: string;

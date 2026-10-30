@@ -6,6 +6,8 @@ import { Mediator } from "../../Mediator.js";
 import { NamedEndpoint } from "../../../endpoint/NamedEndpoint.js";
 
 export class Call extends Mediator {
+  static readonly __fields: string[] = ["source", "target", "endpoint", "blocking", "description", "initAxis2ClientOptions", "inlineEndpointXml", "traceFilter"];
+
   source?: CallSource;
 
   target?: CallTarget;

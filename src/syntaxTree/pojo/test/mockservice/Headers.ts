@@ -4,6 +4,8 @@ import { Header } from "./Header.js";
 import { STNode } from "../../../stNode.js";
 
 export class Headers extends STNode {
+  static readonly __fields: string[] = ["headers"];
+
   headers?: Header[];
 
   constructor() {

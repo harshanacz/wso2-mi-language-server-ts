@@ -5,6 +5,8 @@ import { ID } from "./ID.js";
 import { STNode } from "../../../../stNode.js";
 
 export class ThrottlePolicy extends STNode {
+  static readonly __fields: string[] = ["id", "accessType"];
+
   id?: ID;
 
   accessType?: AccessType;

@@ -3,6 +3,8 @@
 import { DefaultEndpoint } from "./DefaultEndpoint.js";
 
 export class EndpointAddress extends DefaultEndpoint {
+  static readonly __fields: string[] = ["uri"];
+
   uri?: string;
 
   constructor(defaultEndpoint: DefaultEndpoint) {

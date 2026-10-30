@@ -4,6 +4,8 @@ import { DataServiceCallOperationsOperationParam } from "./DataServiceCallOperat
 import { STNode } from "../../../../stNode.js";
 
 export class DataServiceCallOperationsOperation extends STNode {
+  static readonly __fields: string[] = ["param", "name"];
+
   param?: DataServiceCallOperationsOperationParam[];
 
   name?: string;

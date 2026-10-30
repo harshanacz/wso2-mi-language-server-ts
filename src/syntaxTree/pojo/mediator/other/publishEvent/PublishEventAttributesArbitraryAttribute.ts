@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class PublishEventAttributesArbitraryAttribute extends STNode {
+  static readonly __fields: string[] = ["name", "dataType", "_default", "value"];
+
   name?: string;
 
   dataType?: string;

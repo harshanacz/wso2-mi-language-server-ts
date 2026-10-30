@@ -4,6 +4,8 @@ import { ConfigurationType } from "./ConfigurationType.js";
 import { STNode } from "../../stNode.js";
 
 export class DefinitionType extends STNode {
+  static readonly __fields: string[] = ["configuration", "type"];
+
   configuration?: ConfigurationType;
 
   type?: string;

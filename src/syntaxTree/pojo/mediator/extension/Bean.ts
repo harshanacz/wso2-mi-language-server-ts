@@ -4,6 +4,8 @@ import { BeanAction } from "./BeanAction.js";
 import { Mediator } from "../Mediator.js";
 
 export class Bean extends Mediator {
+  static readonly __fields: string[] = ["action", "var", "clazz", "property", "target", "value", "description"];
+
   action?: BeanAction;
 
   var?: string;

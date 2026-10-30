@@ -5,6 +5,8 @@ import { PropertyProperty } from "./PropertyProperty.js";
 import { STNode } from "../../stNode.js";
 
 export class Property extends STNode {
+  static readonly __fields: string[] = ["configuration", "property", "name"];
+
   configuration?: PropertyConfiguration[];
 
   property?: PropertyProperty[];

@@ -5,6 +5,8 @@ import { ConnectorParameter } from "./ConnectorParameter.js";
 import { Mediator } from "../mediator/Mediator.js";
 
 export class Connector extends Mediator {
+  static readonly __fields: string[] = ["connectorName", "method", "configKey", "parameters"];
+
   connectorName?: string;
 
   method?: string;

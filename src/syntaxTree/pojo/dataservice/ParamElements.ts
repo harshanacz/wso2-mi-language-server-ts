@@ -7,6 +7,8 @@ import { ParamValidateLongRange } from "./ParamValidateLongRange.js";
 import { ParamValidatePattern } from "./ParamValidatePattern.js";
 
 export class ParamElements {
+  static readonly __fields: string[] = ["validateCustom", "validateLength", "validatePattern", "validateLongRange", "validateDoubleRange"];
+
   validateCustom?: ParamValidateCustom | undefined;
 
   validateLength?: ParamValidateLength | undefined;

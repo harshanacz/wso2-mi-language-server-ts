@@ -10,6 +10,8 @@ import { STNode } from "../../stNode.js";
 import { WSDLEndpoint } from "./wsdl/WSDLEndpoint.js";
 
 export abstract class ChildEndpoint extends STNode {
+  static readonly __fields: string[] = ["_default", "http", "address", "wsdl", "loadbalance", "failover", "session", "name", "key"];
+
   _default?: DefaultEndpoint;
 
   http?: EndpointHttp;

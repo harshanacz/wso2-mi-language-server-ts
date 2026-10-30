@@ -6,6 +6,8 @@ import { TestCases } from "./TestCases.js";
 import { UnitTestArtifacts } from "./UnitTestArtifacts.js";
 
 export class UnitTest extends STNode {
+  static readonly __fields: string[] = ["unitTestArtifacts", "testCases", "mockServices"];
+
   unitTestArtifacts?: UnitTestArtifacts;
 
   testCases?: TestCases;

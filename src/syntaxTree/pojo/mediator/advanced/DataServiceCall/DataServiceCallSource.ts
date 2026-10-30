@@ -4,6 +4,8 @@ import { DataServiceCallSourceType } from "./DataServiceCallSourceType.js";
 import { STNode } from "../../../../stNode.js";
 
 export class DataServiceCallSource extends STNode {
+  static readonly __fields: string[] = ["type"];
+
   type?: DataServiceCallSourceType;
 
   getType(): DataServiceCallSourceType {

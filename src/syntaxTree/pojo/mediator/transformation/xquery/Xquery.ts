@@ -4,6 +4,8 @@ import { Mediator } from "../../Mediator.js";
 import { XqueryVariable } from "./XqueryVariable.js";
 
 export class Xquery extends Mediator {
+  static readonly __fields: string[] = ["variable", "key", "target", "description", "traceFilter"];
+
   variable?: XqueryVariable[];
 
   key?: string;

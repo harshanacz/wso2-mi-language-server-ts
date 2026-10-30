@@ -4,6 +4,8 @@ import { MockServiceResources } from "./MockServiceResources.js";
 import { STNode } from "../../../stNode.js";
 
 export class MockService extends STNode {
+  static readonly __fields: string[] = ["serviceName", "port", "context", "resources"];
+
   serviceName?: STNode;
 
   port?: STNode;

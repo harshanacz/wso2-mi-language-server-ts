@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class EndpointLoadbalanceMember extends STNode {
+  static readonly __fields: string[] = ["hostName", "httpPort", "httpsPort"];
+
   hostName?: string;
 
   httpPort?: string;

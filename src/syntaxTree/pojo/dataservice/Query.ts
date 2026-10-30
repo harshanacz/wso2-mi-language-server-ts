@@ -9,6 +9,8 @@ import { Sparql } from "./Sparql.js";
 import { Sql } from "./Sql.js";
 
 export class Query extends STNode {
+  static readonly __fields: string[] = ["sql", "expression", "sparql", "properties", "result", "params", "id", "useConfig", "returnGeneratedKeys", "inputEventTrigger", "keyColumns", "returnUpdatedRowCount"];
+
   sql?: Sql;
 
   expression?: Expression;

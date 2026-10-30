@@ -3,6 +3,8 @@
 import { ExtensibleDocumentedType } from "./ExtensibleDocumentedType.js";
 
 export class EndpointType extends ExtensibleDocumentedType {
+  static readonly __fields: string[] = ["otherAttributes", "any", "name", "binding", "address"];
+
   otherAttributes?: any;
 
   any?: any[];

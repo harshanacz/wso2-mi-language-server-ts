@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class TaskTrigger extends STNode {
+  static readonly __fields: string[] = ["interval", "count", "once", "cron"];
+
   interval?: string;
 
   count?: string;

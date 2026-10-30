@@ -5,6 +5,8 @@ import { KeyAttribute } from "../KeyAttribute.js";
 import { STNode } from "../../../../stNode.js";
 
 export class DbMediatorConnectionPool extends STNode {
+  static readonly __fields: string[] = ["dsName", "icClass", "driver", "url", "user", "password", "property"];
+
   dsName?: KeyAttribute;
 
   icClass?: KeyAttribute;

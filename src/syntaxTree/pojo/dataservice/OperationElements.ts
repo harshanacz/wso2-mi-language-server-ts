@@ -3,6 +3,8 @@
 import { CallQuery } from "./CallQuery.js";
 
 export class OperationElements {
+  static readonly __fields: string[] = ["description", "call_query"];
+
   description?: any | undefined;
 
   call_query?: CallQuery | undefined;

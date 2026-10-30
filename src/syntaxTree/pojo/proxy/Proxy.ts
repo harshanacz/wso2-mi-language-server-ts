@@ -8,6 +8,8 @@ import { ProxyTarget } from "./ProxyTarget.js";
 import { STNode } from "../../stNode.js";
 
 export class Proxy extends STNode {
+  static readonly __fields: string[] = ["target", "publishWSDL", "policies", "enableAddressing", "enableSec", "enableRM", "parameters", "description", "name", "transports", "pinnedServers", "serviceGroup", "startOnLoad", "statistics", "trace"];
+
   target?: ProxyTarget;
 
   publishWSDL?: ProxyPublishWSDL;

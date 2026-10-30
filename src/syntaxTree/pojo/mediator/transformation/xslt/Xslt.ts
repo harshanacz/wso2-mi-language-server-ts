@@ -6,6 +6,8 @@ import { XsltFeature } from "./XsltFeature.js";
 import { XsltResource } from "./XsltResource.js";
 
 export class Xslt extends Mediator {
+  static readonly __fields: string[] = ["property", "feature", "resource", "key", "source", "description", "traceFilter"];
+
   property?: MediatorProperty[];
 
   feature?: XsltFeature[];

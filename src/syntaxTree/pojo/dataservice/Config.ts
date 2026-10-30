@@ -4,6 +4,8 @@ import { Property } from "./Property.js";
 import { STNode } from "../../stNode.js";
 
 export class Config extends STNode {
+  static readonly __fields: string[] = ["property", "id", "enableOData"];
+
   property?: Property[];
 
   id?: string;

@@ -1,5 +1,6 @@
 // Generated from Constant.java (string constants), non-string constants hand-ported.
 import { OMAbstractFactory } from "./om/om.js";
+import { Path } from "../synapse/host/nio.js";
 
 export const Constant = {
   ON_CACHE_HIT: "onCacheHit",
@@ -545,6 +546,8 @@ export const Constant = {
   CAR_PLUGIN_CHECK_VERSION: "5.2.88",
   CONNECTOR_PATH: "connectorPath",
   MI_440_VERSION: "4.4.0",
+  DEFAULT_MI_VERSION: "4.4.0",
+  RESOURCE_RELATIVE_PATH: Path.fromString("src/main/wso2mi/resources"),
   MI_450_VERSION: "4.5.0",
   MI_460_VERSION: "4.6.0",
   UI_SCHEMA_NAME: "UI_SCHEMA_NAME",

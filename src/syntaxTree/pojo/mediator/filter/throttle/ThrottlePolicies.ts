@@ -4,6 +4,8 @@ import { STNode } from "../../../../stNode.js";
 import { ThrottlePolicy } from "./ThrottlePolicy.js";
 
 export class ThrottlePolicies extends STNode {
+  static readonly __fields: string[] = ["maximumConcurrentAccess", "policies", "key"];
+
   maximumConcurrentAccess: number = 0;
 
   policies?: ThrottlePolicy[];

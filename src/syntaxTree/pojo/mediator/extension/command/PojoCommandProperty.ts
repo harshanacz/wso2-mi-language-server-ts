@@ -4,6 +4,8 @@ import { CommandPropertyAction } from "./CommandPropertyAction.js";
 import { STNode } from "../../../../stNode.js";
 
 export class PojoCommandProperty extends STNode {
+  static readonly __fields: string[] = ["any", "name", "contextName", "action", "value", "expression"];
+
   any?: any[];
 
   name?: string;

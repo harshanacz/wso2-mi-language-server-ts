@@ -4,6 +4,8 @@ import { MediatorProperty } from "../../core/MediatorProperty.js";
 import { STNode } from "../../../../stNode.js";
 
 export class RuleRuleSetProperties extends STNode {
+  static readonly __fields: string[] = ["property"];
+
   property?: MediatorProperty[];
 
   getProperty(): MediatorProperty[] {

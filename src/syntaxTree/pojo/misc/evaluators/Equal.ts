@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class Equal extends STNode {
+  static readonly __fields: string[] = ["type", "source", "value"];
+
   type?: string;
 
   source?: string;

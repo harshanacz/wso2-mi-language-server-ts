@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class CalloutEnableSec extends STNode {
+  static readonly __fields: string[] = ["policy", "outboundPolicy", "inboundPolicy"];
+
   policy?: string;
 
   outboundPolicy?: string;

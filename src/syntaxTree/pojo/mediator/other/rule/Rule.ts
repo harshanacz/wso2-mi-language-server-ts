@@ -9,6 +9,8 @@ import { RuleSource } from "./RuleSource.js";
 import { RuleTarget } from "./RuleTarget.js";
 
 export class Rule extends Mediator {
+  static readonly __fields: string[] = ["source", "target", "ruleSet", "input", "output", "childMediators", "description", "traceFilter"];
+
   source?: RuleSource;
 
   target?: RuleTarget;

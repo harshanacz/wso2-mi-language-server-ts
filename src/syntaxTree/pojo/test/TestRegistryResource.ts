@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class TestRegistryResource extends STNode {
+  static readonly __fields: string[] = ["fileName", "artifact", "registryPath", "mediaType"];
+
   fileName?: STNode;
 
   artifact?: STNode;

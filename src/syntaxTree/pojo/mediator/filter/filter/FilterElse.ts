@@ -4,6 +4,8 @@ import { Mediator } from "../../Mediator.js";
 import { STNode } from "../../../../stNode.js";
 
 export class FilterElse extends STNode {
+  static readonly __fields: string[] = ["mediatorList", "sequence"];
+
   mediatorList?: Mediator[];
 
   sequence?: string;

@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class MockService extends STNode {
+  static readonly __fields: string[] = ["name"];
+
   name?: string;
 
   getName(): string {

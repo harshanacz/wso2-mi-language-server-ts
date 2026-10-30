@@ -3,6 +3,8 @@
 import { Mediator } from "../Mediator.js";
 
 export class ThrowError extends Mediator {
+  static readonly __fields: string[] = ["type", "errorMessage", "description", "traceFilter"];
+
   type?: string;
 
   errorMessage?: string;

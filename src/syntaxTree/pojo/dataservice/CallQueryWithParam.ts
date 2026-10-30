@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class CallQueryWithParam extends STNode {
+  static readonly __fields: string[] = ["name", "queryParam", "column", "param"];
+
   name?: string;
 
   queryParam?: string;

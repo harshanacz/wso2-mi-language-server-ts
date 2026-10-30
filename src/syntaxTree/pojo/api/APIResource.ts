@@ -5,6 +5,8 @@ import { STNode } from "../../stNode.js";
 import { Sequence } from "../misc/common/Sequence.js";
 
 export class APIResource extends STNode {
+  static readonly __fields: string[] = ["api", "inSequence", "outSequence", "faultSequence", "methods", "protocol", "inSequenceAttribute", "outSequenceAttribute", "faultSequenceAttribute", "uriTemplate", "urlMapping"];
+
   api?: string;
 
   inSequence?: Sequence;

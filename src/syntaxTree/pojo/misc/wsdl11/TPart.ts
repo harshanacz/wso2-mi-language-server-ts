@@ -3,6 +3,8 @@
 import { TExtensibleAttributesDocumented } from "./TExtensibleAttributesDocumented.js";
 
 export class TPart extends TExtensibleAttributesDocumented {
+  static readonly __fields: string[] = ["name", "element", "type"];
+
   name?: string;
 
   element?: string;

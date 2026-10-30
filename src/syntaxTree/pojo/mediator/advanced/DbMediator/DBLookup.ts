@@ -3,6 +3,8 @@
 import { DbMediator } from "./DbMediator.js";
 
 export class DBLookup extends DbMediator {
+  static readonly __fields: string[] = [];
+
   constructor() {
     super();
     this.setDisplayName("DB Lookup");

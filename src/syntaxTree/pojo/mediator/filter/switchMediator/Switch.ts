@@ -5,6 +5,8 @@ import { SwitchCase } from "./SwitchCase.js";
 import { SwitchDefault } from "./SwitchDefault.js";
 
 export class Switch extends Mediator {
+  static readonly __fields: string[] = ["_case", "_default", "source", "description", "traceFilter"];
+
   _case?: SwitchCase[];
 
   _default?: SwitchDefault;

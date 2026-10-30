@@ -3,6 +3,8 @@
 import { Mediator } from "./mediator/Mediator.js";
 
 export class CommentMediator extends Mediator {
+  static readonly __fields: string[] = ["commentText"];
+
   commentText?: string;
 
   getCommentText(): string {

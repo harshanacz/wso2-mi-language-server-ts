@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class EndpointEnableRM extends STNode {
+  static readonly __fields: string[] = ["policy"];
+
   policy?: string;
 
   getPolicy(): string {

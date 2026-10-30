@@ -5,6 +5,8 @@ import { TestCaseAssertions } from "./TestCaseAssertions.js";
 import { TestCaseInput } from "./TestCaseInput.js";
 
 export class TestCase extends STNode {
+  static readonly __fields: string[] = ["input", "assertions", "name"];
+
   input?: TestCaseInput;
 
   assertions?: TestCaseAssertions;

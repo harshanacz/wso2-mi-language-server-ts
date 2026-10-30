@@ -7,6 +7,8 @@ import { CacheScope } from "./CacheScope.js";
 import { Mediator } from "../../Mediator.js";
 
 export class Cache extends Mediator {
+  static readonly __fields: string[] = ["onCacheHit", "protocol", "implementation", "id", "timeout", "collector", "maxMessageSize", "scope", "hashGenerator", "description", "traceFilter"];
+
   onCacheHit?: CacheOnCacheHit;
 
   protocol?: CacheProtocol;

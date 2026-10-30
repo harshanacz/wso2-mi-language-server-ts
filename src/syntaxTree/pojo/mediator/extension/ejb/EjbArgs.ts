@@ -4,6 +4,8 @@ import { EjbArgsArg } from "./EjbArgsArg.js";
 import { STNode } from "../../../../stNode.js";
 
 export class EjbArgs extends STNode {
+  static readonly __fields: string[] = ["arg"];
+
   arg?: EjbArgsArg[];
 
   getArg(): EjbArgsArg[] {

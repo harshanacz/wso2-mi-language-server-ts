@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class TemplateParameter extends STNode {
+  static readonly __fields: string[] = ["otherAttributes", "content", "name", "isMandatory", "defaultValue", "paramNamespacePrefix", "description"];
+
   otherAttributes?: any;
 
   content?: any[];

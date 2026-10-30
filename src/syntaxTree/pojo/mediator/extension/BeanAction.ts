@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/extension/BeanAction.java by the java2ts converter (see tools/java2ts).
 
 export class BeanAction {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly CREATE = new BeanAction("CREATE", 0);

@@ -3,6 +3,8 @@
 import { STNode } from "../stNode.js";
 
 export class LocalEntry extends STNode {
+  static readonly __fields: string[] = ["content", "key", "src", "subType"];
+
   content?: string;
 
   key?: string;

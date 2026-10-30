@@ -6,6 +6,8 @@ import { Mediator } from "../Mediator.js";
 import { MediatorProperty } from "./MediatorProperty.js";
 
 export class Log extends Mediator {
+  static readonly __fields: string[] = ["property", "level", "separator", "category", "description", "message", "logFullPayload", "logMessageID", "traceFilter"];
+
   property?: MediatorProperty[];
 
   level?: LogLevel;

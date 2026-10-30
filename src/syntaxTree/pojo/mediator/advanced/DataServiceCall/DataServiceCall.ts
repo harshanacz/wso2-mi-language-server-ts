@@ -6,6 +6,8 @@ import { DataServiceCallTarget } from "./DataServiceCallTarget.js";
 import { Mediator } from "../../Mediator.js";
 
 export class DataServiceCall extends Mediator {
+  static readonly __fields: string[] = ["source", "operations", "target", "serviceName", "description", "traceFilter"];
+
   source?: DataServiceCallSource;
 
   operations?: DataServiceCallOperations;

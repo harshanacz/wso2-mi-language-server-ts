@@ -3,6 +3,8 @@
 import { Mediator } from "../Mediator.js";
 
 export class FastXSLT extends Mediator {
+  static readonly __fields: string[] = ["key", "description", "traceFilter"];
+
   key?: string;
 
   description?: string;

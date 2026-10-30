@@ -3,6 +3,8 @@
 import { ExtensibleDocumentedType } from "./ExtensibleDocumentedType.js";
 
 export class TypesType extends ExtensibleDocumentedType {
+  static readonly __fields: string[] = ["otherAttributes", "any"];
+
   otherAttributes?: any;
 
   any?: any[];

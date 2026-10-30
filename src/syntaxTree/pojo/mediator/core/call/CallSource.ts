@@ -4,6 +4,8 @@ import { CallSourceType } from "./CallSourceType.js";
 import { STNode } from "../../../../stNode.js";
 
 export class CallSource extends STNode {
+  static readonly __fields: string[] = ["content", "contentType", "type"];
+
   content?: any;
 
   contentType?: string;

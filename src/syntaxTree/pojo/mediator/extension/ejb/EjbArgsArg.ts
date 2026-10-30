@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class EjbArgsArg extends STNode {
+  static readonly __fields: string[] = ["value"];
+
   value?: string;
 
   getValue(): string {

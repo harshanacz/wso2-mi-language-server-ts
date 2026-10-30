@@ -4,6 +4,8 @@ import { APIHandlersHandler } from "./APIHandlersHandler.js";
 import { STNode } from "../../stNode.js";
 
 export class APIHandlers extends STNode {
+  static readonly __fields: string[] = ["handler"];
+
   handler?: APIHandlersHandler[];
 
   getHandler(): APIHandlersHandler[] {

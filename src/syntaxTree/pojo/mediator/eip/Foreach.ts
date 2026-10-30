@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { Sequence } from "../../misc/common/Sequence.js";
 
 export class Foreach extends Mediator {
+  static readonly __fields: string[] = ["sequence", "expression", "sequenceAttribute", "id", "description", "executeParallel", "updateOriginal", "variableName", "resultType", "enclosingElement", "collection", "counterVariableName", "continueWithoutAggregation", "traceFilter"];
+
   sequence?: Sequence;
 
   expression?: string;

@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class RuleTarget extends STNode {
+  static readonly __fields: string[] = ["value", "action", "resultXpath", "xpath"];
+
   value?: string;
 
   action?: string;

@@ -5,6 +5,8 @@ import { InboundEndpointParameters } from "./InboundEndpointParameters.js";
 import { STNode } from "../../stNode.js";
 
 export class InboundEndpoint extends STNode {
+  static readonly __fields: string[] = ["parameters", "typeId", "name", "sequence", "protocol", "onError", "suspend", "clazz", "statistics", "trace", "type"];
+
   parameters?: InboundEndpointParameters[];
 
   typeId?: string;

@@ -4,6 +4,8 @@ import { BuilderMessageBuilder } from "./BuilderMessageBuilder.js";
 import { Mediator } from "../../Mediator.js";
 
 export class Builder extends Mediator {
+  static readonly __fields: string[] = ["messageBuilders", "description", "traceFilter"];
+
   messageBuilders?: BuilderMessageBuilder[];
 
   description?: string;

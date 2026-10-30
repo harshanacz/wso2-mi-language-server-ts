@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/transformation/enrich/SourceEnrichType.java by the java2ts converter (see tools/java2ts).
 
 export class SourceEnrichType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly custom = new SourceEnrichType("custom", 0);

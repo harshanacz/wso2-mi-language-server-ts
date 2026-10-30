@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class DataServiceCallOperationsOperationParam extends STNode {
+  static readonly __fields: string[] = ["name", "value", "expression", "evaluator"];
+
   name?: string;
 
   value?: string;

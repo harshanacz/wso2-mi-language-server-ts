@@ -6,6 +6,8 @@ import { STNode } from "../../stNode.js";
 import { TDefinitions } from "../misc/wsdl11/TDefinitions.js";
 
 export class ProxyPublishWSDL extends STNode {
+  static readonly __fields: string[] = ["definitions", "description", "inlineWsdl", "resource", "uri", "key", "endpoint", "preservePolicy"];
+
   definitions?: TDefinitions;
 
   description?: DescriptionType;

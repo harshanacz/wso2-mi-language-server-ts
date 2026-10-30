@@ -3,6 +3,8 @@
 import { Mediator } from "../Mediator.js";
 
 export class Enqueue extends Mediator {
+  static readonly __fields: string[] = ["priority", "sequence", "executor", "description"];
+
   priority: number = 0;
 
   sequence?: string;

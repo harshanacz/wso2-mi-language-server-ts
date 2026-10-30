@@ -3,5 +3,7 @@
 import { Mediator } from "./Mediator.js";
 
 export class InvalidMediator extends Mediator {
+  static readonly __fields: string[] = ["isInvalid"];
+
   isInvalid: boolean = true;
 }

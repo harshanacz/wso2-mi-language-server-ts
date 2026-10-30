@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/endpoint/EndpointType.java by the java2ts converter (see tools/java2ts).
 
 export class EndpointType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly ADDRESS_ENDPOINT = new EndpointType("ADDRESS_ENDPOINT", 0);

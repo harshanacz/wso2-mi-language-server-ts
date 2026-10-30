@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class KeyAttribute extends STNode {
+  static readonly __fields: string[] = ["key", "value"];
+
   key?: string;
 
   value?: string;

@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class EndpointParameter extends STNode {
+  static readonly __fields: string[] = ["name", "value", "paramNamespacePrefix"];
+
   name?: string;
 
   value?: string;

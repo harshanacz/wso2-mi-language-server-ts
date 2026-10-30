@@ -4,6 +4,8 @@ import { Attribute } from "../Attribute.js";
 import { STNode } from "../../../../stNode.js";
 
 export class PublishEventAttributesCorrelation extends STNode {
+  static readonly __fields: string[] = ["attributes"];
+
   attributes?: Attribute[];
 
   getAttributes(): Attribute[] {

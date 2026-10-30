@@ -3,5 +3,7 @@
 import { Assertion } from "./Assertion.js";
 
 export class AssertNotNull extends Assertion {
+  static readonly __fields: string[] = [];
+
 
 }

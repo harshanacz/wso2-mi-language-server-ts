@@ -3,6 +3,8 @@
 import { ExtensibleDocumentedType } from "./ExtensibleDocumentedType.js";
 
 export class BindingOperationType extends ExtensibleDocumentedType {
+  static readonly __fields: string[] = ["otherAttributes", "inputOrOutputOrInfault", "ref"];
+
   otherAttributes?: any;
 
   inputOrOutputOrInfault?: any[];

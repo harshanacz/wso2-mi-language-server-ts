@@ -6,6 +6,8 @@ import { Element } from "./Element.js";
 import { STNode } from "../../stNode.js";
 
 export class Result extends STNode {
+  static readonly __fields: string[] = ["elements", "attributes", "callQueries", "element", "rowName", "defaultNamespace", "useColumnNumbers", "escapeNonPrintableChar", "xsltPath", "rdfBaseURI", "outputType"];
+
   elements?: Element[];
 
   attributes?: Attribute[];

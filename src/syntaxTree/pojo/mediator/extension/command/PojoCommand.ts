@@ -4,6 +4,8 @@ import { Mediator } from "../../Mediator.js";
 import { PojoCommandProperty } from "./PojoCommandProperty.js";
 
 export class PojoCommand extends Mediator {
+  static readonly __fields: string[] = ["property", "name", "description"];
+
   property?: PojoCommandProperty[];
 
   name?: string;

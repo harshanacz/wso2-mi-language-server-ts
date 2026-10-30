@@ -4,6 +4,8 @@ import { STNode } from "../../../../stNode.js";
 import { SmooksInputType } from "./SmooksInputType.js";
 
 export class SmooksInput extends STNode {
+  static readonly __fields: string[] = ["type", "expression"];
+
   type?: SmooksInputType;
 
   expression?: string;

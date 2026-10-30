@@ -7,6 +7,8 @@ import { Sparql } from "./Sparql.js";
 import { Sql } from "./Sql.js";
 
 export class QueryElements {
+  static readonly __fields: string[] = ["sql", "expression", "sparql", "properties", "result", "param"];
+
   sql?: Sql | undefined;
 
   expression?: Expression | undefined;

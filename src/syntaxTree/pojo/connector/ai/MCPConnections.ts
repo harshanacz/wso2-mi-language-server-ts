@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class MCPConnections extends STNode {
+  static readonly __fields: string[] = ["mcpConnections"];
+
   mcpConnections?: string[];
 
   constructor() {

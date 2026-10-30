@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class ParamValidateCustom extends STNode {
+  static readonly __fields: string[] = ["clazz"];
+
   clazz?: string;
 
   getClazz(): string {

@@ -4,6 +4,8 @@ import { AnyTopLevelOptionalElement } from "./AnyTopLevelOptionalElement.js";
 import { TExtensibleDocumented } from "./TExtensibleDocumented.js";
 
 export class TDefinitions extends TExtensibleDocumented {
+  static readonly __fields: string[] = ["anyTopLevelOptionalElement", "targetNamespace", "name"];
+
   anyTopLevelOptionalElement?: AnyTopLevelOptionalElement;
 
   targetNamespace?: string;

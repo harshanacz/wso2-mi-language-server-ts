@@ -5,6 +5,8 @@ import { CallQuery } from "./CallQuery.js";
 import { STNode } from "../../stNode.js";
 
 export class Element extends STNode {
+  static readonly __fields: string[] = ["elements", "attributes", "callQueries", "name", "column", "requiredRoles", "export", "exportType", "xsdType", "namespace", "optional", "arrayName", "queryParam", "inlineXml"];
+
   elements?: Element[];
 
   attributes?: Attribute[];

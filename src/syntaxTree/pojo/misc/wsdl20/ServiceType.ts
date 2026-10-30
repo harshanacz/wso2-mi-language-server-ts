@@ -4,6 +4,8 @@ import { EndpointType } from "./EndpointType.js";
 import { ExtensibleDocumentedType } from "./ExtensibleDocumentedType.js";
 
 export class ServiceType extends ExtensibleDocumentedType {
+  static readonly __fields: string[] = ["otherAttributes", "endpointOrAny", "name", "_interface"];
+
   otherAttributes?: any;
 
   endpointOrAny?: EndpointType[];

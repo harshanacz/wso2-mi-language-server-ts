@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class XsltResource extends STNode {
+  static readonly __fields: string[] = ["location", "key"];
+
   location?: string;
 
   key?: string;

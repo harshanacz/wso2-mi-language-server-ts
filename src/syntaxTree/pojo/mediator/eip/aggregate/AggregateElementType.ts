@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/eip/aggregate/AggregateElementType.java by the java2ts converter (see tools/java2ts).
 
 export class AggregateElementType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly root = new AggregateElementType("root", 0);

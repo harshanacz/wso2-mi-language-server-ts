@@ -5,6 +5,8 @@ import { RuleRuleSetRule } from "./RuleRuleSetRule.js";
 import { STNode } from "../../../../stNode.js";
 
 export class RuleRuleset extends STNode {
+  static readonly __fields: string[] = ["properties", "rule"];
+
   properties?: RuleRuleSetProperties;
 
   rule?: RuleRuleSetRule;

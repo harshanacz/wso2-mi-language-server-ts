@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class EndpointSuspendOnFailure extends STNode {
+  static readonly __fields: string[] = ["errorCodes", "initialDuration", "progressionFactor", "maximumDuration"];
+
   errorCodes?: STNode;
 
   initialDuration?: STNode;

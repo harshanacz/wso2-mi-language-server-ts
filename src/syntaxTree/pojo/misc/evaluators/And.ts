@@ -6,6 +6,8 @@ import { Or } from "./Or.js";
 import { STNode } from "../../../stNode.js";
 
 export class And extends STNode {
+  static readonly __fields: string[] = ["and", "or", "equal", "not"];
+
   and?: And;
 
   or?: Or;

@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class RuleOutputFact extends STNode {
+  static readonly __fields: string[] = ["elementName", "namespace", "type"];
+
   elementName?: string;
 
   namespace?: string;

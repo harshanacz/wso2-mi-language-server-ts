@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class MakefaultDetail extends STNode {
+  static readonly __fields: string[] = ["expression"];
+
   expression?: string;
 
   getExpression(): string {

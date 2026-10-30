@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class Attribute extends STNode {
+  static readonly __fields: string[] = ["name", "dataType", "_default", "value", "expression"];
+
   name?: string;
 
   dataType?: string;

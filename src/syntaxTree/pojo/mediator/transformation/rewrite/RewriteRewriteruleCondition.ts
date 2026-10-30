@@ -7,6 +7,8 @@ import { Or } from "../../../misc/evaluators/Or.js";
 import { STNode } from "../../../../stNode.js";
 
 export class RewriteRewriteruleCondition extends STNode {
+  static readonly __fields: string[] = ["and", "or", "equal", "not", "condition"];
+
   and?: And;
 
   or?: Or;

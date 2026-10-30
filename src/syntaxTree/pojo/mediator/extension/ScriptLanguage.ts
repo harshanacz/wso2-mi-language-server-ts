@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/extension/ScriptLanguage.java by the java2ts converter (see tools/java2ts).
 
 export class ScriptLanguage {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly js = new ScriptLanguage("js", 0);

@@ -3,6 +3,8 @@
 import { ExtensibleDocumentedType } from "./ExtensibleDocumentedType.js";
 
 export class MessageRefType extends ExtensibleDocumentedType {
+  static readonly __fields: string[] = ["otherAttributes", "any", "messageLabel", "element"];
+
   otherAttributes?: any;
 
   any?: any[];

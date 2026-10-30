@@ -4,6 +4,8 @@ import { STNode } from "../../../../stNode.js";
 import { StatementParameterType } from "./StatementParameterType.js";
 
 export class DbMediatorStatementParameter extends STNode {
+  static readonly __fields: string[] = ["type", "value", "expression"];
+
   type?: StatementParameterType;
 
   value?: string;

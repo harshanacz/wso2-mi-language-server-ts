@@ -5,6 +5,8 @@ import { Mediator } from "../../Mediator.js";
 import { STNode } from "../../../../stNode.js";
 
 export class AggregateOnComplete extends STNode {
+  static readonly __fields: string[] = ["mediatorList", "expression", "sequenceAttribute", "enclosingElementProperty", "aggregateElementType"];
+
   mediatorList?: Mediator[];
 
   expression?: string;

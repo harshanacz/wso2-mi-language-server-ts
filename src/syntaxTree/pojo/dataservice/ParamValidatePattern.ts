@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class ParamValidatePattern extends STNode {
+  static readonly __fields: string[] = ["pattern"];
+
   pattern?: string;
 
   getPattern(): string {

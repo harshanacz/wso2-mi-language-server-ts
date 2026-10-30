@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/endpoint/SessionType.java by the java2ts converter (see tools/java2ts).
 
 export class SessionType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly simpleClientSession = new SessionType("simpleClientSession", 0);

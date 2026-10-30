@@ -5,6 +5,8 @@ import { DbMediatorStatement } from "./DbMediatorStatement.js";
 import { Mediator } from "../../Mediator.js";
 
 export class DbMediator extends Mediator {
+  static readonly __fields: string[] = ["connection", "statement", "useTransaction", "description", "traceFilter"];
+
   connection?: DbMediatorConnection;
 
   statement?: DbMediatorStatement[];

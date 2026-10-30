@@ -5,6 +5,8 @@ import { ChildEndpoint } from "../ChildEndpoint.js";
 import { EndpointFailover } from "./EndpointFailover.js";
 
 export class EndpointFailoverEndpoint extends ChildEndpoint {
+  static readonly __fields: string[] = [];
+
   getFailover(): EndpointFailover {
     throw new UnsupportedOperationException("Not supported for FailOver Endpoint");
 

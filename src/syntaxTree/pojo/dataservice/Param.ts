@@ -4,6 +4,8 @@ import { ParamElements } from "./ParamElements.js";
 import { STNode } from "../../stNode.js";
 
 export class Param extends STNode {
+  static readonly __fields: string[] = ["paramElements", "name", "sqlType", "paramType", "type", "ordinal", "defaultValue", "optional", "structType"];
+
   paramElements?: ParamElements[];
 
   name?: string;

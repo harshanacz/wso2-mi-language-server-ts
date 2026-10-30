@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { SchemaType } from "./SchemaType.js";
 
 export class Datamapper extends Mediator {
+  static readonly __fields: string[] = ["config", "inputSchema", "outputSchema", "inputType", "outputType", "xsltStyleSheet", "description", "traceFilter"];
+
   config?: string;
 
   inputSchema?: string;

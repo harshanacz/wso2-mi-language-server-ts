@@ -3,6 +3,8 @@
 import { ExtensibleDocumentedType } from "./ExtensibleDocumentedType.js";
 
 export class InterfaceType extends ExtensibleDocumentedType {
+  static readonly __fields: string[] = ["otherAttributes", "operationOrFaultOrAny", "name", "_extends", "styleDefault"];
+
   otherAttributes?: any;
 
   operationOrFaultOrAny?: any[];

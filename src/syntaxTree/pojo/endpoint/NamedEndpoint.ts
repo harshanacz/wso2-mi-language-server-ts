@@ -3,6 +3,8 @@
 import { Endpoint } from "./Endpoint.js";
 
 export class NamedEndpoint extends Endpoint {
+  static readonly __fields: string[] = ["name"];
+
   name?: string;
 
   getName(): string {

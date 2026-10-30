@@ -8,6 +8,8 @@ import { TemplateArtifactType } from "./TemplateArtifactType.js";
 import { TemplateParameter } from "./TemplateParameter.js";
 
 export class Template extends STNode {
+  static readonly __fields: string[] = ["description", "parameter", "endpoint", "sequence", "name", "onError", "type"];
+
   description?: STNode;
 
   parameter?: TemplateParameter[];

@@ -4,6 +4,8 @@ import { Mediator } from "../../Mediator.js";
 import { PublishEventAttributes } from "./PublishEventAttributes.js";
 
 export class PublishEvent extends Mediator {
+  static readonly __fields: string[] = ["eventSink", "streamName", "streamVersion", "async", "timeout", "attributes", "description"];
+
   eventSink?: any;
 
   streamName?: any;

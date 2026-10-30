@@ -4,6 +4,8 @@ import { EnableAddressingVersion } from "./EnableAddressingVersion.js";
 import { STNode } from "../../../stNode.js";
 
 export class EndpointEnableAddressing extends STNode {
+  static readonly __fields: string[] = ["version", "separateListener"];
+
   version?: EnableAddressingVersion;
 
   separateListener: boolean = false;

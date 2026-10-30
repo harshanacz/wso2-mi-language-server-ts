@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class ValidateResource extends STNode {
+  static readonly __fields: string[] = ["key", "location"];
+
   key?: string;
 
   location?: string;

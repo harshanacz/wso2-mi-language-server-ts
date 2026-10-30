@@ -3,6 +3,8 @@
 import { Mediator } from "../../Mediator.js";
 
 export class Ntlm extends Mediator {
+  static readonly __fields: string[] = ["domain", "host", "username", "password", "ntlmVersion", "description", "traceFilter"];
+
   domain?: string;
 
   host?: string;

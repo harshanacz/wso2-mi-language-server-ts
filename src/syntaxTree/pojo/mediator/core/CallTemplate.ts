@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { WithParam } from "./WithParam.js";
 
 export class CallTemplate extends Mediator {
+  static readonly __fields: string[] = ["withParam", "target", "onError", "description", "traceFilter"];
+
   withParam?: WithParam[];
 
   target?: string;

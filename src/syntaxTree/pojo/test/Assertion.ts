@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class Assertion extends STNode {
+  static readonly __fields: string[] = ["actual", "message"];
+
   actual?: STNode;
 
   message?: STNode;

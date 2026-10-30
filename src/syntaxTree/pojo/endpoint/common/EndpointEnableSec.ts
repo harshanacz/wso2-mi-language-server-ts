@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class EndpointEnableSec extends STNode {
+  static readonly __fields: string[] = ["policy", "inboundPolicy", "outboundPolicy"];
+
   policy?: string;
 
   inboundPolicy?: string;

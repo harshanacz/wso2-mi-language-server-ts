@@ -4,6 +4,8 @@ import { STNode } from "../../../../stNode.js";
 import { SourceEnrichType } from "./SourceEnrichType.js";
 
 export class SourceEnrich extends STNode {
+  static readonly __fields: string[] = ["content", "clone", "xpath", "key", "type", "property"];
+
   content?: any;
 
   clone: boolean = false;

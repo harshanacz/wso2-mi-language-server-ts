@@ -4,6 +4,8 @@ import { BamServerProfile } from "./BamServerProfile.js";
 import { Mediator } from "../../Mediator.js";
 
 export class Bam extends Mediator {
+  static readonly __fields: string[] = ["serverProfile", "description", "traceFilter"];
+
   serverProfile?: BamServerProfile;
 
   description?: string;

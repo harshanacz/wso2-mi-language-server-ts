@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class EntitlementServiceAdvice extends STNode {
+  static readonly __fields: string[] = ["any"];
+
   any?: any;
 
   getAny(): any {

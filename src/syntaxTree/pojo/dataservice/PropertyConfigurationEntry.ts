@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class PropertyConfigurationEntry extends STNode {
+  static readonly __fields: string[] = ["username", "password", "request"];
+
   username?: STNode;
 
   password?: STNode;

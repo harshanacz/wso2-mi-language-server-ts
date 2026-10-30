@@ -3,6 +3,8 @@
 import { Mediator } from "../Mediator.js";
 
 export class Spring extends Mediator {
+  static readonly __fields: string[] = ["bean", "key", "description"];
+
   bean?: string;
 
   key?: string;

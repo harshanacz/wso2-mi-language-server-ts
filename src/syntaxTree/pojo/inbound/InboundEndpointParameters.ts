@@ -4,6 +4,8 @@ import { Parameter } from "../misc/common/Parameter.js";
 import { STNode } from "../../stNode.js";
 
 export class InboundEndpointParameters extends STNode {
+  static readonly __fields: string[] = ["parameter"];
+
   parameter?: Parameter[];
 
   getParameter(): Parameter[] {

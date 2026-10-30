@@ -5,6 +5,8 @@ import { MockServiceResourceResponse } from "./MockServiceResourceResponse.js";
 import { STNode } from "../../../stNode.js";
 
 export class MockServiceResource extends STNode {
+  static readonly __fields: string[] = ["subContext", "method", "request", "response"];
+
   subContext?: STNode;
 
   method?: STNode;

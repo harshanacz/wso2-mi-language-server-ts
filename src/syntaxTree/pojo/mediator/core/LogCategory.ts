@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/core/LogCategory.java by the java2ts converter (see tools/java2ts).
 
 export class LogCategory {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly INFO = new LogCategory("INFO", 0);

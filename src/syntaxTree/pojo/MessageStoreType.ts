@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/MessageStoreType.java by the java2ts converter (see tools/java2ts).
 
 export class MessageStoreType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly IN_MEMORY = new MessageStoreType("IN_MEMORY", 0);

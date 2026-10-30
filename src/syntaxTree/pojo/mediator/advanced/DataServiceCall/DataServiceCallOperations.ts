@@ -5,6 +5,8 @@ import { DataServiceCallOperationsType } from "./DataServiceCallOperationsType.j
 import { STNode } from "../../../../stNode.js";
 
 export class DataServiceCallOperations extends STNode {
+  static readonly __fields: string[] = ["operation", "type"];
+
   operation?: DataServiceCallOperationsOperation[];
 
   type?: DataServiceCallOperationsType;

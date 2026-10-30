@@ -4,6 +4,8 @@ import { STNode } from "../../stNode.js";
 import { TestProperties } from "./TestProperties.js";
 
 export class TestCaseInput extends STNode {
+  static readonly __fields: string[] = ["requestPath", "requestMethod", "requestProtocol", "payload", "properties"];
+
   requestPath?: STNode;
 
   requestMethod?: STNode;

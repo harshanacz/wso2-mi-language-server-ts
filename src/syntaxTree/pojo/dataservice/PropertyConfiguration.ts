@@ -4,6 +4,8 @@ import { PropertyConfigurationEntry } from "./PropertyConfigurationEntry.js";
 import { STNode } from "../../stNode.js";
 
 export class PropertyConfiguration extends STNode {
+  static readonly __fields: string[] = ["entry"];
+
   entry?: PropertyConfigurationEntry[];
 
   getEntry(): PropertyConfigurationEntry[] {

@@ -5,6 +5,8 @@ import { STNode } from "../../../../stNode.js";
 import { Target } from "../../../misc/targets/Target.js";
 
 export class ConditionalRouterConditionalRoute extends STNode {
+  static readonly __fields: string[] = ["condition", "target", "asynchronous", "breakRoute"];
+
   condition?: ConditionalRouterConditionalRouteCondition;
 
   target?: Target;

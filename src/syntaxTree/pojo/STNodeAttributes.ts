@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/STNodeAttributes.java by the java2ts converter (see tools/java2ts).
 
 export class STNodeAttributes {
+  static readonly __fields: string[] = ["closed", "hasDelimiter", "name", "nameTagOffOffset", "nameTagOpenOffset", "originalValue", "quotelessValue", "valueTagOffOffset", "valueTagOpenOffset"];
+
   closed: boolean = false;
 
   hasDelimiter: boolean = false;

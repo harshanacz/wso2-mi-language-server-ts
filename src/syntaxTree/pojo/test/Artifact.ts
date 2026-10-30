@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class Artifact extends STNode {
+  static readonly __fields: string[] = ["content"];
+
   content?: string;
 
   getContent(): string {

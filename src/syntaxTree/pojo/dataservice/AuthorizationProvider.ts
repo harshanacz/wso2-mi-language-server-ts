@@ -4,6 +4,8 @@ import { AuthorizationProviderProperty } from "./AuthorizationProviderProperty.j
 import { STNode } from "../../stNode.js";
 
 export class AuthorizationProvider extends STNode {
+  static readonly __fields: string[] = ["property", "clazz"];
+
   property?: AuthorizationProviderProperty[];
 
   clazz?: string;

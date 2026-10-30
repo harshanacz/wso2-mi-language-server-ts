@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class PropertyProperty extends STNode {
+  static readonly __fields: string[] = ["value", "name"];
+
   value?: string;
 
   name?: string;

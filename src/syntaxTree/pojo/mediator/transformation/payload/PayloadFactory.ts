@@ -8,6 +8,8 @@ import { PayloadFactoryFormat } from "./PayloadFactoryFormat.js";
 import { TemplateType } from "./TemplateType.js";
 
 export class PayloadFactory extends Mediator {
+  static readonly __fields: string[] = ["format", "args", "mediaType", "templateType", "description", "traceFilter"];
+
   format?: PayloadFactoryFormat;
 
   args?: PayloadFactoryArgs;

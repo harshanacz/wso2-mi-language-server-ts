@@ -10,6 +10,8 @@ import { Resource } from "./Resource.js";
 import { STNode } from "../../stNode.js";
 
 export class Data extends STNode {
+  static readonly __fields: string[] = ["description", "configs", "queries", "operations", "resources", "eventTriggers", "policy", "enableSec", "authorizationProvider", "baseURI", "name", "enableBatchRequests", "enableBoxcarring", "disableLegacyBoxcarringMode", "disableStreaming", "txManagerJNDIName", "serviceNamespace", "serviceGroup", "publishSwagger", "transports", "serviceStatus"];
+
   description?: STNode;
 
   configs?: Config[];

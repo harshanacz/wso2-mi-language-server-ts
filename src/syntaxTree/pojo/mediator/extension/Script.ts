@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { ScriptLanguage } from "./ScriptLanguage.js";
 
 export class Script extends Mediator {
+  static readonly __fields: string[] = ["content", "language", "key", "include", "function", "description", "traceFilter"];
+
   content?: any[];
 
   language?: ScriptLanguage;

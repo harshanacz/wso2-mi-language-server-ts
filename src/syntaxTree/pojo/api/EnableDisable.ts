@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/api/EnableDisable.java by the java2ts converter (see tools/java2ts).
 
 export class EnableDisable {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly enable = new EnableDisable("enable", 0);

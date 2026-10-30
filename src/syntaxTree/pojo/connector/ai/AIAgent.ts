@@ -5,6 +5,8 @@ import { AgentTools } from "./AgentTools.js";
 import { MCPConnections } from "./MCPConnections.js";
 
 export class AIAgent extends AIConnector {
+  static readonly __fields: string[] = ["agentID", "mcpConnections", "tools"];
+
   agentID?: string;
 
   mcpConnections?: MCPConnections;

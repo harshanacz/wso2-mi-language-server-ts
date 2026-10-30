@@ -3,6 +3,8 @@
 import { Mediator } from "./Mediator.js";
 
 export class SequenceMediator extends Mediator {
+  static readonly __fields: string[] = ["mediatorList", "key", "name", "description", "traceFilter"];
+
   mediatorList?: Mediator[];
 
   key?: string;

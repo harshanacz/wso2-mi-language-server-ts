@@ -15,6 +15,8 @@ import { STNode } from "../../../stNode.js";
 import { TDefinitions } from "../../misc/wsdl11/TDefinitions.js";
 
 export class WSDLEndpoint extends STNode {
+  static readonly __fields: string[] = ["definitions", "description", "enableSec", "enableRM", "enableAddressing", "timeout", "suspendOnFailure", "markForSuspension", "uri", "service", "port", "format", "optimize", "encoding", "statistics", "trace"];
+
   definitions?: TDefinitions;
 
   description?: DescriptionType;

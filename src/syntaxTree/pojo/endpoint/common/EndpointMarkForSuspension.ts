@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class EndpointMarkForSuspension extends STNode {
+  static readonly __fields: string[] = ["errorCodes", "retriesBeforeSuspension", "retryDelay"];
+
   errorCodes?: STNode;
 
   retriesBeforeSuspension?: STNode;

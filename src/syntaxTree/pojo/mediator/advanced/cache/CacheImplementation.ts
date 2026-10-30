@@ -4,6 +4,8 @@ import { CacheImplementationType } from "./CacheImplementationType.js";
 import { STNode } from "../../../../stNode.js";
 
 export class CacheImplementation extends STNode {
+  static readonly __fields: string[] = ["maxSize", "type"];
+
   maxSize: number = 0;
 
   type?: CacheImplementationType;

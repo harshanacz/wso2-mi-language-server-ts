@@ -5,6 +5,8 @@ import { Mediator } from "../../Mediator.js";
 import { Sequence } from "../../../misc/common/Sequence.js";
 
 export class EntitlementService extends Mediator {
+  static readonly __fields: string[] = ["onReject", "onAccept", "advice", "obligations", "remoteServiceUrl", "remoteServiceUserName", "remoteServicePassword", "callbackClass", "client", "thriftHost", "thriftPort", "onRejectAttribute", "onAcceptAttribute", "adviceAttribute", "obligationsAttribute", "description", "traceFilter"];
+
   onReject?: Sequence;
 
   onAccept?: Sequence;

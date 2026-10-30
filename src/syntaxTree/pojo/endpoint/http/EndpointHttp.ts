@@ -5,6 +5,8 @@ import { HttpMethod } from "./HttpMethod.js";
 import { STNode } from "../../../stNode.js";
 
 export class EndpointHttp extends STNode {
+  static readonly __fields: string[] = ["enableSecAndEnableRMAndEnableAddressing", "uriTemplate", "method", "statistics", "trace"];
+
   enableSecAndEnableRMAndEnableAddressing?: EnableSecAndEnableRMAndEnableAddressing;
 
   uriTemplate?: string;

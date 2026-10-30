@@ -4,6 +4,8 @@ import { TExtensibleDocumented } from "./TExtensibleDocumented.js";
 import { TPort } from "./TPort.js";
 
 export class TService extends TExtensibleDocumented {
+  static readonly __fields: string[] = ["port", "name"];
+
   port?: TPort[];
 
   name?: string;

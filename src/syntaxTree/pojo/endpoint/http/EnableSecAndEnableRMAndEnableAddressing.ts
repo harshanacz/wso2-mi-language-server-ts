@@ -11,6 +11,8 @@ import { EndpointTimeout } from "../common/EndpointTimeout.js";
 import { STNode } from "../../../stNode.js";
 
 export class EnableSecAndEnableRMAndEnableAddressing extends STNode {
+  static readonly __fields: string[] = ["enableSec", "enableRM", "enableAddressing", "timeout", "suspendOnFailure", "markForSuspension", "authentication", "retryConfig"];
+
   enableSec?: EndpointEnableSec | undefined;
 
   enableRM?: EndpointEnableRM | undefined;

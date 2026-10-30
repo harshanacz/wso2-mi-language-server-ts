@@ -4,6 +4,8 @@ import { Headers } from "./Headers.js";
 import { STNode } from "../../../stNode.js";
 
 export class MockServiceResourceRequest extends STNode {
+  static readonly __fields: string[] = ["headers", "payload"];
+
   headers?: Headers;
 
   payload?: STNode;

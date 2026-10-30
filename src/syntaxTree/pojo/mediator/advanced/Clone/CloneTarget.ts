@@ -5,6 +5,8 @@ import { STNode } from "../../../../stNode.js";
 import { Sequence } from "../../../misc/common/Sequence.js";
 
 export class CloneTarget extends STNode {
+  static readonly __fields: string[] = ["sequence", "endpoint", "to", "soapAction", "sequenceAttribute", "endpointAttribute"];
+
   sequence?: Sequence;
 
   endpoint?: NamedEndpoint;

@@ -9,6 +9,8 @@ import { TService } from "./TService.js";
 import { TTypes } from "./TTypes.js";
 
 export class AnyTopLevelOptionalElement extends STNode {
+  static readonly __fields: string[] = ["_import", "types", "message", "portType", "binding", "service"];
+
   _import?: TImport | undefined;
 
   types?: TTypes | undefined;

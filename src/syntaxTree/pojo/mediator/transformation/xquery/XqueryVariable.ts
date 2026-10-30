@@ -4,6 +4,8 @@ import { STNode } from "../../../../stNode.js";
 import { XqueryVariableType } from "./XqueryVariableType.js";
 
 export class XqueryVariable extends STNode {
+  static readonly __fields: string[] = ["name", "type", "expression", "value", "key"];
+
   name?: string;
 
   type?: XqueryVariableType;

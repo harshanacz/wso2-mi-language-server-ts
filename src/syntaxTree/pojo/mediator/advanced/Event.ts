@@ -3,6 +3,8 @@
 import { Mediator } from "../Mediator.js";
 
 export class Event extends Mediator {
+  static readonly __fields: string[] = ["topic", "expression", "description"];
+
   topic?: string;
 
   expression?: string;

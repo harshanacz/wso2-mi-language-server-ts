@@ -4,6 +4,8 @@ import { Parameter } from "./misc/common/Parameter.js";
 import { STNode } from "../stNode.js";
 
 export class Registry extends STNode {
+  static readonly __fields: string[] = ["parameter", "provider"];
+
   parameter?: Parameter[];
 
   provider?: string;

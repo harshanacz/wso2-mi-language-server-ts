@@ -4,6 +4,8 @@ import { TExtensibleAttributesDocumented } from "./TExtensibleAttributesDocument
 import { TOperation } from "./TOperation.js";
 
 export class TPortType extends TExtensibleAttributesDocumented {
+  static readonly __fields: string[] = ["operation", "name"];
+
   operation?: TOperation[];
 
   name?: string;

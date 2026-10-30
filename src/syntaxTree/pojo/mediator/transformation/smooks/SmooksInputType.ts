@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/transformation/smooks/SmooksInputType.java by the java2ts converter (see tools/java2ts).
 
 export class SmooksInputType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly text = new SmooksInputType("text", 0);

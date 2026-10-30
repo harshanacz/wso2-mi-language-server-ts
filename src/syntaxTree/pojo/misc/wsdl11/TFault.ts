@@ -3,6 +3,8 @@
 import { TExtensibleAttributesDocumented } from "./TExtensibleAttributesDocumented.js";
 
 export class TFault extends TExtensibleAttributesDocumented {
+  static readonly __fields: string[] = ["name", "message"];
+
   name?: string;
 
   message?: string;

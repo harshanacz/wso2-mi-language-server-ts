@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/endpoint/Optimize.java by the java2ts converter (see tools/java2ts).
 
 export class Optimize {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly mtom = new Optimize("mtom", 0);

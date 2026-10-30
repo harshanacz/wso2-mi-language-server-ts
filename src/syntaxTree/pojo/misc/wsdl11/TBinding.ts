@@ -4,6 +4,8 @@ import { TBindingOperation } from "./TBindingOperation.js";
 import { TExtensibleDocumented } from "./TExtensibleDocumented.js";
 
 export class TBinding extends TExtensibleDocumented {
+  static readonly __fields: string[] = ["operation", "name", "type"];
+
   operation?: TBindingOperation[];
 
   name?: string;

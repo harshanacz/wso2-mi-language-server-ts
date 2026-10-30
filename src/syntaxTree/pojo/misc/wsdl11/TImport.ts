@@ -3,6 +3,8 @@
 import { TExtensibleAttributesDocumented } from "./TExtensibleAttributesDocumented.js";
 
 export class TImport extends TExtensibleAttributesDocumented {
+  static readonly __fields: string[] = ["namespace", "location"];
+
   namespace?: string;
 
   location?: string;

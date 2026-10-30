@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class ParamValidateLength extends STNode {
+  static readonly __fields: string[] = ["minimum", "maximum"];
+
   minimum: number = 0;
 
   maximum: number = 0;

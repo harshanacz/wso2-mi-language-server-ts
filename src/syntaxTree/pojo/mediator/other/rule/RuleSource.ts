@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class RuleSource extends STNode {
+  static readonly __fields: string[] = ["value", "xpath"];
+
   value?: string;
 
   xpath?: string;

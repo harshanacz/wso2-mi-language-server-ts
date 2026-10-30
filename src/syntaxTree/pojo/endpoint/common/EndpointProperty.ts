@@ -4,6 +4,8 @@ import { EndpointPropertyScope } from "./EndpointPropertyScope.js";
 import { MediatorProperty } from "../../mediator/core/MediatorProperty.js";
 
 export class EndpointProperty extends MediatorProperty {
+  static readonly __fields: string[] = ["scope"];
+
   scope?: EndpointPropertyScope;
 
   constructor(mediatorProperty: MediatorProperty) {

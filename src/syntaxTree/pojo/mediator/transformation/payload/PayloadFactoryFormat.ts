@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class PayloadFactoryFormat extends STNode {
+  static readonly __fields: string[] = ["content", "key"];
+
   content?: any;
 
   key?: string;

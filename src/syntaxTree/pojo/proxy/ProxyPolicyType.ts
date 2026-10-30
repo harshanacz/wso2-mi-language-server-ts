@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/proxy/ProxyPolicyType.java by the java2ts converter (see tools/java2ts).
 
 export class ProxyPolicyType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly in = new ProxyPolicyType("in", 0);

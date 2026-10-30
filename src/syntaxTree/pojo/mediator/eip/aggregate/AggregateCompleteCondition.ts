@@ -4,6 +4,8 @@ import { AggregateCompleteConditionMessageCount } from "./AggregateCompleteCondi
 import { STNode } from "../../../../stNode.js";
 
 export class AggregateCompleteCondition extends STNode {
+  static readonly __fields: string[] = ["messageCount", "timeout"];
+
   messageCount?: AggregateCompleteConditionMessageCount;
 
   timeout: number = 0;

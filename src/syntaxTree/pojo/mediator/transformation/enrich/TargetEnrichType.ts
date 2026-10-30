@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/transformation/enrich/TargetEnrichType.java by the java2ts converter (see tools/java2ts).
 
 export class TargetEnrichType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly custom = new TargetEnrichType("custom", 0);

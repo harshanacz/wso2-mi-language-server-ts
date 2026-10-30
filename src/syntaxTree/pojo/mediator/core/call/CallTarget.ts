@@ -4,6 +4,8 @@ import { STNode } from "../../../../stNode.js";
 import { TargetType } from "../../../misc/TargetType.js";
 
 export class CallTarget extends STNode {
+  static readonly __fields: string[] = ["type"];
+
   type?: TargetType;
 
   getType(): TargetType {

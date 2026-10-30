@@ -6,6 +6,8 @@ import { AggregateOnComplete } from "./AggregateOnComplete.js";
 import { STNode } from "../../../../stNode.js";
 
 export class CorrelateOnOrCompleteConditionOrOnComplete extends STNode {
+  static readonly __fields: string[] = ["correlateOn", "completeCondition", "onComplete"];
+
   correlateOn?: AggregateCorrelateOn | undefined;
 
   completeCondition?: AggregateCompleteCondition | undefined;

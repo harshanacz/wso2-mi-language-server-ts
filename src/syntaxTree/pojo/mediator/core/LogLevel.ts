@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/core/LogLevel.java by the java2ts converter (see tools/java2ts).
 
 export class LogLevel {
+  static readonly __fields: string[] = [];
+
   toUpperCase(): string {
     return this.name().toUpperCase();
 

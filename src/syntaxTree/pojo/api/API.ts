@@ -7,6 +7,8 @@ import { EnableDisable } from "./EnableDisable.js";
 import { STNode } from "../../stNode.js";
 
 export class API extends STNode {
+  static readonly __fields: string[] = ["resource", "handlers", "name", "context", "hostname", "port", "version", "versionType", "publishSwagger", "description", "statistics", "trace"];
+
   resource?: APIResource[];
 
   handlers?: APIHandlers;

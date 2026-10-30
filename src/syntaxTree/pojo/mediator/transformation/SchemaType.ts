@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/transformation/SchemaType.java by the java2ts converter (see tools/java2ts).
 
 export class SchemaType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly XML = new SchemaType("XML", 0);

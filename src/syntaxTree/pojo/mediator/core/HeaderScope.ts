@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/core/HeaderScope.java by the java2ts converter (see tools/java2ts).
 
 export class HeaderScope {
+  static readonly __fields: string[] = ["value"];
+
   value: string;
   getValue(): string {
     return this.value;

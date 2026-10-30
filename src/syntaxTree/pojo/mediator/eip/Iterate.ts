@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { Target } from "../../misc/targets/Target.js";
 
 export class Iterate extends Mediator {
+  static readonly __fields: string[] = ["target", "sequential", "continueParent", "expression", "preservePayload", "attachPath", "id", "description", "traceFilter"];
+
   target?: Target;
 
   sequential: boolean = false;

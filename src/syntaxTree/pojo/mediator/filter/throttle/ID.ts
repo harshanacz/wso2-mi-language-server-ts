@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class ID extends STNode {
+  static readonly __fields: string[] = ["value", "type"];
+
   value?: string;
 
   type?: string;

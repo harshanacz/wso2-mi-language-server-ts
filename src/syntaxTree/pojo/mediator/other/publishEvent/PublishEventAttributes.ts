@@ -7,6 +7,8 @@ import { PublishEventAttributesPayload } from "./PublishEventAttributesPayload.j
 import { STNode } from "../../../../stNode.js";
 
 export class PublishEventAttributes extends STNode {
+  static readonly __fields: string[] = ["meta", "correlation", "payload", "arbitrary"];
+
   meta?: PublishEventAttributesMeta;
 
   correlation?: PublishEventAttributesCorrelation;

@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class TestConnectorResources extends STNode {
+  static readonly __fields: string[] = ["connectorResources"];
+
   connectorResources?: STNode[];
 
   getConnectorResources(): STNode[] {

@@ -4,6 +4,8 @@ import { STNode } from "../../../../stNode.js";
 import { TargetType } from "../../../misc/TargetType.js";
 
 export class DataServiceCallTarget extends STNode {
+  static readonly __fields: string[] = ["type", "name"];
+
   type?: TargetType;
 
   name?: string;

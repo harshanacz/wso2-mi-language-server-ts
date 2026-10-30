@@ -4,6 +4,8 @@ import { ConnectionPoolPropertyName } from "./ConnectionPoolPropertyName.js";
 import { STNode } from "../../../../stNode.js";
 
 export class DbMediatorConnectionPoolProperty extends STNode {
+  static readonly __fields: string[] = ["name", "value"];
+
   name?: ConnectionPoolPropertyName;
 
   value?: string;

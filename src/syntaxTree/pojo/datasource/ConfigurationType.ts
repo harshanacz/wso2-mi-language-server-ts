@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class ConfigurationType extends STNode {
+  static readonly __fields: string[] = ["content"];
+
   content?: any[];
 
   getContent(): any[] {

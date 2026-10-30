@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/template/TemplateArtifactType.java by the java2ts converter (see tools/java2ts).
 
 export class TemplateArtifactType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly ADDRESS_ENDPOINT = new TemplateArtifactType("ADDRESS_ENDPOINT", 0);

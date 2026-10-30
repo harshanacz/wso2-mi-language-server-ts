@@ -5,6 +5,8 @@ import { Sequence } from "../../../misc/common/Sequence.js";
 import { ThrottlePolicies } from "./ThrottlePolicies.js";
 
 export class Throttle extends Mediator {
+  static readonly __fields: string[] = ["policies", "onAccept", "onReject", "id", "onAcceptAttribute", "onRejectAttribute", "description", "traceFilter"];
+
   policies?: ThrottlePolicies;
 
   onAccept?: Sequence;

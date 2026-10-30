@@ -4,6 +4,8 @@ import { EndpointRecipientlistEndpoint } from "./EndpointRecipientlistEndpoint.j
 import { STNode } from "../../../stNode.js";
 
 export class EndpointRecipientlist extends STNode {
+  static readonly __fields: string[] = ["endpoint"];
+
   endpoint?: EndpointRecipientlistEndpoint[];
 
   getEndpoint(): EndpointRecipientlistEndpoint[] {

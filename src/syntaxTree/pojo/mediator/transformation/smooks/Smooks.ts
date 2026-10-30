@@ -5,6 +5,8 @@ import { SmooksInput } from "./SmooksInput.js";
 import { SmooksOutput } from "./SmooksOutput.js";
 
 export class Smooks extends Mediator {
+  static readonly __fields: string[] = ["input", "output", "configKey", "description", "traceFilter"];
+
   input?: SmooksInput;
 
   output?: SmooksOutput;

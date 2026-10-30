@@ -4,6 +4,8 @@ import { Mediator } from "../../Mediator.js";
 import { SourceOrTargetOrConfiguration } from "./SourceOrTargetOrConfiguration.js";
 
 export class Callout extends Mediator {
+  static readonly __fields: string[] = ["sourceOrTargetOrConfiguration", "serviceURL", "action", "initAxis2ClientOptions", "endpointKey", "description", "traceFilter"];
+
   sourceOrTargetOrConfiguration?: SourceOrTargetOrConfiguration;
 
   serviceURL?: string;

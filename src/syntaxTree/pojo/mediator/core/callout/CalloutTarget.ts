@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class CalloutTarget extends STNode {
+  static readonly __fields: string[] = ["xpath", "key"];
+
   xpath?: string;
 
   key?: string;

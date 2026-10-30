@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { PropertyMediatorType } from "./PropertyMediatorType.js";
 
 export class Variable extends Mediator {
+  static readonly __fields: string[] = ["type", "description", "name", "action", "value", "expression", "traceFilter"];
+
   type?: PropertyMediatorType;
 
   description?: string;

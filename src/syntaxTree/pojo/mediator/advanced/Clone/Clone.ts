@@ -4,6 +4,8 @@ import { CloneTarget } from "./CloneTarget.js";
 import { Mediator } from "../../Mediator.js";
 
 export class Clone extends Mediator {
+  static readonly __fields: string[] = ["target", "id", "continueParent", "sequential", "description", "traceFilter"];
+
   target?: CloneTarget[];
 
   id?: string;

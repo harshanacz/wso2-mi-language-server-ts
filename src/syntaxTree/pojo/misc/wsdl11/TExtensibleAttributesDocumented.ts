@@ -3,6 +3,8 @@
 import { TDocumented } from "./TDocumented.js";
 
 export class TExtensibleAttributesDocumented extends TDocumented {
+  static readonly __fields: string[] = ["otherAttributes"];
+
   otherAttributes?: any;
 
   getOtherAttributes(): any {

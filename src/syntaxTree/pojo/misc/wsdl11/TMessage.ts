@@ -4,6 +4,8 @@ import { TExtensibleDocumented } from "./TExtensibleDocumented.js";
 import { TPart } from "./TPart.js";
 
 export class TMessage extends TExtensibleDocumented {
+  static readonly __fields: string[] = ["part", "name"];
+
   part?: TPart[];
 
   name?: string;

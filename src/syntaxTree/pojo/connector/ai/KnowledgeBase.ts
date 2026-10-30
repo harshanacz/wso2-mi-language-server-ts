@@ -3,5 +3,7 @@
 import { AIConnector } from "./AIConnector.js";
 
 export class KnowledgeBase extends AIConnector {
+  static readonly __fields: string[] = [];
+
 
 }

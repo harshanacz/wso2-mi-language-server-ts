@@ -5,6 +5,8 @@ import { Parameter } from "./misc/common/Parameter.js";
 import { STNode } from "../stNode.js";
 
 export class MessageStore extends STNode {
+  static readonly __fields: string[] = ["parameter", "name", "clazz", "type"];
+
   parameter?: Parameter[];
 
   name?: string;

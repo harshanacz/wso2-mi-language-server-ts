@@ -5,6 +5,8 @@ import { SourceEnrich } from "./SourceEnrich.js";
 import { TargetEnrich } from "./TargetEnrich.js";
 
 export class Enrich extends Mediator {
+  static readonly __fields: string[] = ["source", "target", "description", "traceFilter"];
+
   source?: SourceEnrich;
 
   target?: TargetEnrich;

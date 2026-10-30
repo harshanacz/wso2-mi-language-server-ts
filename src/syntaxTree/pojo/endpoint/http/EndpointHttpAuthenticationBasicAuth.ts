@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class EndpointHttpAuthenticationBasicAuth extends STNode {
+  static readonly __fields: string[] = ["username", "password"];
+
   username?: STNode;
 
   password?: STNode;

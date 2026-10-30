@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class Mediator extends STNode {
+  static readonly __fields: string[] = ["displayName"];
+
   displayName?: string;
 
   getDisplayName(): string {

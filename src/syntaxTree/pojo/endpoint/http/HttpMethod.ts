@@ -3,6 +3,8 @@
 import { get } from "../../../javaCompat.js";
 
 export class HttpMethod {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly get = new HttpMethod("get", 0);

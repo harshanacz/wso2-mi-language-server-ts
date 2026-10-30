@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class ConnectorParameter extends STNode {
+  static readonly __fields: string[] = ["name", "isExpression", "value", "expression"];
+
   name?: string;
 
   isExpression: boolean = false;

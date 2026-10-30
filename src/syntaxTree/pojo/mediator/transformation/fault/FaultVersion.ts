@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/transformation/fault/FaultVersion.java by the java2ts converter (see tools/java2ts).
 
 export class FaultVersion {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly soap11 = new FaultVersion("soap11", 0);

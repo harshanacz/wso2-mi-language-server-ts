@@ -5,6 +5,8 @@ import { EndpointLoadbalanceMember } from "./EndpointLoadbalanceMember.js";
 import { STNode } from "../../../stNode.js";
 
 export class EndpointOrMember extends STNode {
+  static readonly __fields: string[] = ["endpoint", "member"];
+
   endpoint?: EndpointLoadbalanceEndpoint | undefined;
 
   member?: EndpointLoadbalanceMember | undefined;

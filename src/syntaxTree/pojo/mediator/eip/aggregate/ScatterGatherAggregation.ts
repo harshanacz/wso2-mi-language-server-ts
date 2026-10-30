@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class ScatterGatherAggregation extends STNode {
+  static readonly __fields: string[] = ["expression", "condition", "completeTimeout", "minMessages", "maxMessages"];
+
   expression?: string;
 
   condition?: string;

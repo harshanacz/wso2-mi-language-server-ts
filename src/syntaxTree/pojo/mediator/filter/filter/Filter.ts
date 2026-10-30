@@ -5,6 +5,8 @@ import { FilterThen } from "./FilterThen.js";
 import { Mediator } from "../../Mediator.js";
 
 export class Filter extends Mediator {
+  static readonly __fields: string[] = ["then", "else_", "source", "regex", "xpath", "description", "traceFilter"];
+
   then?: FilterThen;
 
   else_?: FilterElse;

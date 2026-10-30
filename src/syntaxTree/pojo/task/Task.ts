@@ -5,6 +5,8 @@ import { STNode } from "../../stNode.js";
 import { TaskTrigger } from "./TaskTrigger.js";
 
 export class Task extends STNode {
+  static readonly __fields: string[] = ["trigger", "property", "clazz", "name", "group", "pinnedServers"];
+
   trigger?: TaskTrigger;
 
   property?: MediatorProperty[];

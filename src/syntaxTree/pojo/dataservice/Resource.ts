@@ -4,6 +4,8 @@ import { CallQuery } from "./CallQuery.js";
 import { STNode } from "../../stNode.js";
 
 export class Resource extends STNode {
+  static readonly __fields: string[] = ["description", "callQuery", "path", "method", "disableStreaming", "returnRequestStatus"];
+
   description?: STNode;
 
   callQuery?: CallQuery;

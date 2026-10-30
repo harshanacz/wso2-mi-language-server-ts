@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/MessageProcessorType.java by the java2ts converter (see tools/java2ts).
 
 export class MessageProcessorType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly MESSAGE_SAMPLING = new MessageProcessorType("MESSAGE_SAMPLING", 0);

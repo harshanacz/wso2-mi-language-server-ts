@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class CacheProtocol extends STNode {
+  static readonly __fields: string[] = ["methods", "headersToExcludeInHash", "headersToIncludeInHash", "responseCodes", "enableCacheControl", "includeAgeHeader", "hashGenerator", "type"];
+
   methods?: STNode;
 
   headersToExcludeInHash?: STNode;

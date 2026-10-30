@@ -4,6 +4,8 @@ import { STNode } from "../../stNode.js";
 import { TestCase } from "./TestCase.js";
 
 export class TestCases extends STNode {
+  static readonly __fields: string[] = ["testCases"];
+
   testCases?: TestCase[];
 
   getTestCases(): TestCase[] {

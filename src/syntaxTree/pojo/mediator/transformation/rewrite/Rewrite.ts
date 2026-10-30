@@ -4,6 +4,8 @@ import { Mediator } from "../../Mediator.js";
 import { RewriteRewriterule } from "./RewriteRewriterule.js";
 
 export class Rewrite extends Mediator {
+  static readonly __fields: string[] = ["rewriterule", "inProperty", "outProperty", "description", "traceFilter"];
+
   rewriterule?: RewriteRewriterule[];
 
   inProperty?: string;

@@ -4,6 +4,8 @@ import { JndiEnvType } from "./JndiEnvType.js";
 import { STNode } from "../../stNode.js";
 
 export class JndiConfigType extends STNode {
+  static readonly __fields: string[] = ["name", "environment", "useDataSourceFactory"];
+
   name?: STNode;
 
   environment?: JndiEnvType;

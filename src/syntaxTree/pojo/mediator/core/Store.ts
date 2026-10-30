@@ -3,6 +3,8 @@
 import { Mediator } from "../Mediator.js";
 
 export class Store extends Mediator {
+  static readonly __fields: string[] = ["messageStore", "sequence", "description", "traceFilter"];
+
   messageStore?: string;
 
   sequence?: string;

@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class Expression extends STNode {
+  static readonly __fields: string[] = ["value", "dialect"];
+
   value?: string;
 
   dialect?: string;

@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class EndpointRetryConfig {
+  static readonly __fields: string[] = ["enabledErrorCodes", "disabledErrorCodes"];
+
   enabledErrorCodes?: STNode;
 
   disabledErrorCodes?: STNode;

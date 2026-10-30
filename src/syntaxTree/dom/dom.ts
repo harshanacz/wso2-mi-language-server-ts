@@ -8,10 +8,8 @@ import { TokenType, XMLScanner } from "./xmlScanner.js";
 
 export const NULL_VALUE = -1;
 
-export interface Position {
-  line: number;
-  character: number;
-}
+import { Position } from "../../synapse/lsp.js";
+export type { Position };
 
 export type DOMNodeType = "document" | "element" | "text" | "comment" | "cdata" | "pi";
 
@@ -33,6 +31,53 @@ export abstract class DOMNode {
 
   getStart(): number {
     return this.start;
+  }
+
+  /** DOMNode.findNodeBefore: the deepest node starting before the offset. */
+  findNodeBefore(offset: number): DOMNode {
+    const children = this.getChildren();
+    let first = children.findIndex((c) => offset <= c.start);
+    if (first < 0) first = children.length;
+    const idx = first - 1;
+    if (idx >= 0) {
+      const child = children[idx];
+      if (offset > child.start) {
+        if (offset < child.end) {
+          return child.findNodeBefore(offset);
+        }
+        const lastChild = child.getLastChild();
+        if (lastChild !== null && lastChild.end === child.end) {
+          return child.findNodeBefore(offset);
+        }
+        return child;
+      }
+    }
+    return this;
+  }
+
+  /** DOMNode.findNodeAt: the deepest node including the offset. */
+  findNodeAt(offset: number): DOMNode {
+    const children = this.getChildren();
+    let first = children.findIndex((c) => offset <= c.start);
+    if (first < 0) first = children.length;
+    const idx = first - 1;
+    if (idx >= 0) {
+      const child = children[idx];
+      if (offset >= child.start && offset <= child.end) {
+        return child.findNodeAt(offset);
+      }
+    }
+    return this;
+  }
+
+  findAttrAt(offset: number): DOMAttr | null {
+    const node = this.findNodeAt(offset);
+    if (node !== null && node.hasAttributes()) {
+      for (const attr of node.getAttributeNodes()) {
+        if (attr.isIncluded(offset)) return attr;
+      }
+    }
+    return null;
   }
   getEnd(): number {
     return this.end;
@@ -173,6 +218,19 @@ export class DOMAttr {
   }
   getEnd(): number {
     return this.valueEnd !== NULL_VALUE ? this.valueEnd : this.nameEnd;
+  }
+  getNodeName(): string {
+    return this.getName();
+  }
+  getNodeValue(): string | null {
+    return this.getValue();
+  }
+  /** The attribute name as a range (DOMAttr.getNodeAttrName()). */
+  getNodeAttrName(): { getStart(): number; getEnd(): number } {
+    return { getStart: () => this.nameStart, getEnd: () => this.nameEnd };
+  }
+  isIncluded(offset: number): boolean {
+    return offset >= this.getStart() && offset <= this.getEnd();
   }
 }
 
@@ -389,7 +447,7 @@ export class DOMDocument extends DOMNode {
       if (starts[mid] <= offset) lo = mid;
       else hi = mid - 1;
     }
-    return { line: lo, character: offset - starts[lo] };
+    return new Position(lo, offset - starts[lo]);
   }
 
   offsetAt(position: Position): number {

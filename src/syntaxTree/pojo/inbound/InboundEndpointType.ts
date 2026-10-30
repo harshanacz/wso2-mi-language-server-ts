@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/inbound/InboundEndpointType.java by the java2ts converter (see tools/java2ts).
 
 export class InboundEndpointType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly HTTP = new InboundEndpointType("HTTP", 0);

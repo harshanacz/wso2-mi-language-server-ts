@@ -5,6 +5,8 @@ import { RewriteRewriteruleCondition } from "./RewriteRewriteruleCondition.js";
 import { STNode } from "../../../../stNode.js";
 
 export class RewriteRewriterule extends STNode {
+  static readonly __fields: string[] = ["condition", "action"];
+
   condition?: RewriteRewriteruleCondition;
 
   action?: RewriteRewriteruleAction[];

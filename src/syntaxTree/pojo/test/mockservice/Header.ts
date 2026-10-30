@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class Header extends STNode {
+  static readonly __fields: string[] = ["name", "value"];
+
   name?: string;
 
   value?: string;

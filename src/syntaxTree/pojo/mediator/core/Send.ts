@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { NamedEndpoint } from "../../endpoint/NamedEndpoint.js";
 
 export class Send extends Mediator {
+  static readonly __fields: string[] = ["endpoint", "receive", "buildmessage", "description", "inlineEndpointXml", "traceFilter"];
+
   endpoint?: NamedEndpoint;
 
   receive?: string;

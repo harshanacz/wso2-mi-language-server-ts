@@ -5,6 +5,8 @@ import { Mediator } from "../Mediator.js";
 import { ScatterGatherAggregation } from "./aggregate/ScatterGatherAggregation.js";
 
 export class ScatterGather extends Mediator {
+  static readonly __fields: string[] = ["targets", "executeParallel", "resultTarget", "variableName", "contentType", "rootElement", "description", "scatterGatherAggregation", "traceFilter"];
+
   targets?: CloneTarget[];
 
   executeParallel: boolean = false;

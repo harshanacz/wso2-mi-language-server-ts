@@ -3,6 +3,8 @@
 import { STNode } from "../../../stNode.js";
 
 export class EndpointTimeout extends STNode {
+  static readonly __fields: string[] = ["duration", "responseAction", "content"];
+
   duration?: STNode;
 
   responseAction?: STNode;

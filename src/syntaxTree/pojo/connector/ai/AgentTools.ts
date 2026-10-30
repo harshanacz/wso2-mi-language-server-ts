@@ -4,6 +4,8 @@ import { AgentTool } from "./AgentTool.js";
 import { STNode } from "../../../stNode.js";
 
 export class AgentTools extends STNode {
+  static readonly __fields: string[] = ["tools"];
+
   tools?: AgentTool[];
 
   constructor() {

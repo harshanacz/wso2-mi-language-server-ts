@@ -5,6 +5,8 @@ import { PropertyMediatorType } from "./PropertyMediatorType.js";
 import { PropertyScope } from "./PropertyScope.js";
 
 export class Property extends Mediator {
+  static readonly __fields: string[] = ["any", "scope", "type", "pattern", "group", "description", "name", "action", "value", "expression", "traceFilter"];
+
   any?: any;
 
   scope?: PropertyScope;

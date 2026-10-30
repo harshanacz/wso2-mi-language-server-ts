@@ -4,6 +4,8 @@ import { Mediator } from "../Mediator.js";
 import { TransactionAction } from "./TransactionAction.js";
 
 export class Transaction extends Mediator {
+  static readonly __fields: string[] = ["action", "description", "traceFilter"];
+
   action?: TransactionAction;
 
   description?: string;

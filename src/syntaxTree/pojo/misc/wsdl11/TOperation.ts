@@ -3,6 +3,8 @@
 import { TExtensibleDocumented } from "./TExtensibleDocumented.js";
 
 export class TOperation extends TExtensibleDocumented {
+  static readonly __fields: string[] = ["rest", "name", "parameterOrder"];
+
   rest?: any[];
 
   name?: string;

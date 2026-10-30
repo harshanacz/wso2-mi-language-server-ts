@@ -3,6 +3,8 @@
 import { TExtensibleDocumented } from "./TExtensibleDocumented.js";
 
 export class TBindingOperationMessage extends TExtensibleDocumented {
+  static readonly __fields: string[] = ["name"];
+
   name?: string;
 
   getName(): string {

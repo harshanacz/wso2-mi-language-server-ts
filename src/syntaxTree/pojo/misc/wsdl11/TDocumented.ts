@@ -4,6 +4,8 @@ import { STNode } from "../../../stNode.js";
 import { TDocumentation } from "./TDocumentation.js";
 
 export abstract class TDocumented extends STNode {
+  static readonly __fields: string[] = ["documentation"];
+
   documentation?: TDocumentation;
 
   getDocumentation(): TDocumentation {

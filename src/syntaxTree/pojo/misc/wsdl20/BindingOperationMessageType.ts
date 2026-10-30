@@ -3,6 +3,8 @@
 import { ExtensibleDocumentedType } from "./ExtensibleDocumentedType.js";
 
 export class BindingOperationMessageType extends ExtensibleDocumentedType {
+  static readonly __fields: string[] = ["otherAttributes", "any", "messageLabel"];
+
   otherAttributes?: any;
 
   any?: any[];

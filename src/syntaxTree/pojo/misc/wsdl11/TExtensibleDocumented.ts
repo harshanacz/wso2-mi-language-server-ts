@@ -3,6 +3,8 @@
 import { TDocumented } from "./TDocumented.js";
 
 export abstract class TExtensibleDocumented extends TDocumented {
+  static readonly __fields: string[] = ["any"];
+
   any?: any[];
 
   getAny(): any[] {

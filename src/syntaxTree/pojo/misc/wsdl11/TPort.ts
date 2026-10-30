@@ -3,6 +3,8 @@
 import { TExtensibleDocumented } from "./TExtensibleDocumented.js";
 
 export class TPort extends TExtensibleDocumented {
+  static readonly __fields: string[] = ["name", "binding"];
+
   name?: string;
 
   binding?: string;

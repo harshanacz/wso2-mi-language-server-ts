@@ -8,6 +8,8 @@ import { ValidateResource } from "./ValidateResource.js";
 import { ValidateSchema } from "./ValidateSchema.js";
 
 export class Validate extends Mediator {
+  static readonly __fields: string[] = ["property", "schema", "onFail", "feature", "resource", "cacheSchema", "source", "description", "traceFilter"];
+
   property?: ValidateProperty[];
 
   schema?: ValidateSchema[];

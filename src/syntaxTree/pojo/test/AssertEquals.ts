@@ -4,6 +4,8 @@ import { Assertion } from "./Assertion.js";
 import { STNode } from "../../stNode.js";
 
 export class AssertEquals extends Assertion {
+  static readonly __fields: string[] = ["expected"];
+
   expected?: STNode;
 
   getExpected(): STNode {

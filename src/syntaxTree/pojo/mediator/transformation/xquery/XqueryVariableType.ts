@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/transformation/xquery/XqueryVariableType.java by the java2ts converter (see tools/java2ts).
 
 export class XqueryVariableType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly STRING = new XqueryVariableType("STRING", 0);

@@ -4,6 +4,8 @@ import { PayloadFactoryArgsArg } from "./PayloadFactoryArgsArg.js";
 import { STNode } from "../../../../stNode.js";
 
 export class PayloadFactoryArgs extends STNode {
+  static readonly __fields: string[] = ["arg"];
+
   arg?: PayloadFactoryArgsArg[];
 
   getArg(): PayloadFactoryArgsArg[] {

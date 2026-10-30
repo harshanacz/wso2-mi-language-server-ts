@@ -4,6 +4,8 @@ import { Connection } from "../../../connectorDeps.js";
 import { Connector } from "../Connector.js";
 
 export abstract class AIConnector extends Connector {
+  static readonly __fields: string[] = ["connections"];
+
   connections?: Map<string, Connection>;
 
   constructor() {

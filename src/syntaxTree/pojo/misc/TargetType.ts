@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/misc/TargetType.java by the java2ts converter (see tools/java2ts).
 
 export class TargetType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly property = new TargetType("property", 0);

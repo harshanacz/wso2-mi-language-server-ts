@@ -4,6 +4,8 @@ import { EvaluatorList } from "./EvaluatorList.js";
 import { STNode } from "../../../stNode.js";
 
 export class Or extends STNode {
+  static readonly __fields: string[] = ["evaluatorList"];
+
   evaluatorList?: EvaluatorList[];
 
   getEvaluatorList(): EvaluatorList[] {

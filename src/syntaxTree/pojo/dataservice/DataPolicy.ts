@@ -3,6 +3,8 @@
 import { STNode } from "../../stNode.js";
 
 export class DataPolicy extends STNode {
+  static readonly __fields: string[] = ["key"];
+
   key?: string;
 
   getKey(): string {

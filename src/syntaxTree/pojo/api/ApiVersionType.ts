@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/api/ApiVersionType.java by the java2ts converter (see tools/java2ts).
 
 export class ApiVersionType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly context = new ApiVersionType("context", 0);

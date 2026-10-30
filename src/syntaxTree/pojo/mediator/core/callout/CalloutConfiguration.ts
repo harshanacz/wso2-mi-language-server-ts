@@ -3,6 +3,8 @@
 import { STNode } from "../../../../stNode.js";
 
 export class CalloutConfiguration extends STNode {
+  static readonly __fields: string[] = ["axis2Xml", "repository"];
+
   axis2Xml?: string;
 
   repository?: string;

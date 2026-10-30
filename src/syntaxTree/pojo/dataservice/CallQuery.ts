@@ -4,6 +4,8 @@ import { CallQueryWithParam } from "./CallQueryWithParam.js";
 import { STNode } from "../../stNode.js";
 
 export class CallQuery extends STNode {
+  static readonly __fields: string[] = ["withParam", "href", "requiredRoles"];
+
   withParam?: CallQueryWithParam[];
 
   href?: string;

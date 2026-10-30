@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/syntaxTree/pojo/mediator/advanced/cache/CacheImplementationType.java by the java2ts converter (see tools/java2ts).
 
 export class CacheImplementationType {
+  static readonly __fields: string[] = [];
+
 
 
   static readonly memory = new CacheImplementationType("memory", 0);

@@ -4,6 +4,8 @@ import { STNode } from "../../stNode.js";
 import { SessionType } from "./SessionType.js";
 
 export class EndpointSession extends STNode {
+  static readonly __fields: string[] = ["sessionTimeout", "type"];
+
   sessionTimeout: number = 0;
 
   type?: SessionType;

@@ -4,6 +4,8 @@ import { EjbArgs } from "./EjbArgs.js";
 import { Mediator } from "../../Mediator.js";
 
 export class Ejb extends Mediator {
+  static readonly __fields: string[] = ["args", "beanstalk", "clazz", "sessionId", "remove", "method", "target", "jndiName", "id", "stateful", "description", "traceFilter"];
+
   args?: EjbArgs;
 
   beanstalk?: string;
