@@ -92,7 +92,7 @@ export class ObjectNode extends JsonNode {
   has(n: string | number): boolean { return this.props.has(String(n)); }
   get(n: string | number): JsonNode | null { return this.props.get(String(n)) ?? null; }
   path(n: string | number): JsonNode { return this.props.get(String(n)) ?? MissingNode.INSTANCE; }
-  set(name: string, v: JsonNode | null): ObjectNode { this.props.set(name, v ?? NullNode.getInstance()); return this; }
+  set(name: string, v: JsonNode | string | number | boolean | null): ObjectNode { this.props.set(name, toNode(v)); return this; }
   put(name: string, v: string | number | boolean | null): ObjectNode { this.props.set(name, toNode(v)); return this; }
   putObject(name: string): ObjectNode { const o = new ObjectNode(); this.props.set(name, o); return o; }
   putArray(name: string): ArrayNode { const a = new ArrayNode(); this.props.set(name, a); return a; }

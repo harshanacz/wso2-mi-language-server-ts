@@ -28,10 +28,10 @@ export class ConfigParser {
            let propertyFilePath = ConfigParser.getFilePath(projectUri);
            if (ConfigParser.isConfigFileExist(propertyFilePath)) {
                try {
-    let reader = new BufferedReader(new FileReader(propertyFilePath));
+    let fileText = Files.readAllLines(propertyFilePath.toPath());
                    let line: string | undefined;
                    let lineNumber = 1;
-                   while ((line = reader.readLine()) != null) {
+                   for (line of fileText) {
                        line = line.trim();
                        if (line.startsWith(Constants.HASH) || isEmpty(line)) {
                            lineNumber++;
@@ -67,11 +67,11 @@ export class ConfigParser {
                 let value = entry.getKey() + Constants.COLON + entry.getValue();
                 if (entry.getRange() != null && entry.getRange().isLeft()) {
                     let range = entry.getRange().getLeft();
-                    updateResponse.push(new TextEdit(new Range(range.getStart(),
+                    updateResponse.add(new TextEdit(new Range(range.getStart(),
                             new Position(range.getStart().getLine(), range.getEnd().getCharacter())), value));
                 } else {
                     startLine++;
-                    updateResponse.push(new TextEdit(new Range(new Position(startLine, 0),
+                    updateResponse.add(new TextEdit(new Range(new Position(startLine, 0),
                             new Position(startLine, value.length + 1)), value));
                 }
             }
@@ -117,8 +117,8 @@ export class ConfigParser {
   }
 
   static getFilePath(projectUri: string): JFile {
-    return new JFile(Path.of(projectUri, Constants.SRC, Constants.MAIN, Constants.WSO2_MI,
-            Constants.RESOURCES, Constants.CONF ,Constants.CONFIG_FILE).toUri());
+    return Path.of(projectUri, Constants.SRC, Constants.MAIN, Constants.WSO2_MI,
+            Constants.RESOURCES, Constants.CONF ,Constants.CONFIG_FILE).toFile();
 
   }
 

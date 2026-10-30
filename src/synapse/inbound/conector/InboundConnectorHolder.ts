@@ -7,6 +7,9 @@ import { InboundEndpoint } from "../../../syntaxTree/pojo/inbound/InboundEndpoin
 import { InboundEndpointInfo } from "./InboundEndpointInfo.js";
 import { JsonObject } from "../../gson.js";
 import { JsonParser } from "../../gson.js";
+import { ObjectMapper, NullNode } from "../../jackson.js";
+import { PomParser } from "../../parser/pom/PomParser.js";
+import { readResourceText } from "../../resources.js";
 import { OverviewPageDetailsResponse } from "../../parser/OverviewPageDetailsResponse.js";
 import { Path } from "../../host/nio.js";
 import { SyntaxTreeGenerator } from "../../../syntaxTree/SyntaxTreeGenerator.js";
@@ -38,7 +41,7 @@ export class InboundConnectorHolder {
 
   localInboundEndpointsListForCopilot?: string;
 
-  FALLBACK_TO_440: string[] = new Set([
+  FALLBACK_TO_440: Set<string> = new Set([
             Constant.MI_460_VERSION,
             Constant.MI_450_VERSION
     ]);
@@ -59,7 +62,7 @@ export class InboundConnectorHolder {
 
 
     let pomDetailsResponse = new OverviewPageDetailsResponse();
-    getPomDetails(projectPath, pomDetailsResponse);
+    PomParser.getPomDetails(projectPath, pomDetailsResponse);
     let node = pomDetailsResponse.getPrimaryDetails().getRuntimeVersion();
     if (node != null && contains(this.FALLBACK_TO_440, node.getValue())) {
         this.projectRuntimeVersion = node.getValue();
@@ -96,11 +99,9 @@ export class InboundConnectorHolder {
   getCustomInboundConnectors(): void {
     let extractFolder = new JFile(String(Path.of(this.projectPath, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
             Constant.RESOURCES, Constant.INBOUND_CONNECTORS_DIR)));
-    let inputStream = JsonLoader
-            .getResourceAsStream("/org/eclipse/lemminx/inbound-endpoints/inbound_endpoints_"
+    let inputStream = readResourceText("/org/eclipse/lemminx/inbound-endpoints/inbound_endpoints_"
                     + jreplace(this.projectRuntimeVersion, ".", StringUtils.EMPTY) + Constant.JSON_FILE_EXT);
-    let reader = new BufferedReader(new InputStreamReader(inputStream));
-    this.inboundConnectorListJson = JsonParser.parseReader(reader).getAsJsonObject();
+    this.inboundConnectorListJson = JsonParser.parseString(inputStream).getAsJsonObject();
     let inboundConnectorZips = this.getInboundConnectorZips(extractFolder);
     for (let zip of inboundConnectorZips) {
         let zipName = jreplace(zip.getName(), Constant.DOT + "zip", StringUtils.EMPTY);
@@ -280,18 +281,7 @@ export class InboundConnectorHolder {
                if (!file.exists()) {
                    file.getParentFile().mkdirs();
                }
-               {
-    let writer = new BufferedWriter(new FileWriter(file));
-                   let chunkSize = 8192; 
-                   let length = text.length;
-                   for (let i = 0; i < length; i += chunkSize) {
-                       if (i + chunkSize > length) {
-                           writer.write(text.substring(i));
-                       } else {
-                           writer.write(text.substring(i, i + chunkSize));
-                       }
-                   }
-               }
+               file.writeText(text);
                return true;
            } catch (e) {
                InboundConnectorHolder.LOGGER.log(Level.SEVERE, "Error occurred while saving inbound connector schema to file", e);
@@ -326,7 +316,7 @@ export class InboundConnectorHolder {
         let connectorName = id;
         let description = inboundConnectorData.path(Constant.DESCRIPTION).asText(StringUtils.EMPTY);
 
-        let inputStream = JsonLoader.getResourceAsStream("/org/eclipse/lemminx/inbound-endpoints/"
+        let inputStream = readResourceText("/org/eclipse/lemminx/inbound-endpoints/"
                         + jreplace(this.projectRuntimeVersion, ".", StringUtils.EMPTY) + "/" + id + Constant.JSON_FILE_EXT);
         if (inputStream == null) {
             continue;
@@ -377,7 +367,7 @@ export class InboundConnectorHolder {
                     for (let item of val.path(Constant.COMBO_VALUES)) {
                         values.push(item.asText());
                     }
-                    descBuilder.append(" - supported values: ").append(String(values));
+                    descBuilder.append(" - supported values: ").append("[" + values.join(", ") + "]");
                 }
                 param.set(Constant.DESCRIPTION, String(descBuilder));
 

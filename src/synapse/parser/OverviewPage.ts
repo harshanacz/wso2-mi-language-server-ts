@@ -7,6 +7,8 @@ import { Constant } from "../../syntaxTree/constant.js";
 import { Dependency } from "../dependency/tree/pojo/Dependency.js";
 import { DependencyScanner } from "../dependency/tree/DependencyScanner.js";
 import { DirectoryTreeBuilder } from "../directoryTree/DirectoryTreeBuilder.js";
+import { ObjectMapper, JsonNode } from "../jackson.js";
+import { PomParser } from "./pom/PomParser.js";
 import { OverviewPageDetailsResponse } from "./OverviewPageDetailsResponse.js";
 import { Utils } from "../../syntaxTree/utils.js";
 import { WorkspaceFolder } from "../lsp.js";
@@ -20,7 +22,7 @@ export class OverviewPage {
 
   static getDetails(projectUri: string): OverviewPageDetailsResponse {
     let pomDetailsResponse = new OverviewPageDetailsResponse();
-    getPomDetails(projectUri, pomDetailsResponse);
+    PomParser.getPomDetails(projectUri, pomDetailsResponse);
     pomDetailsResponse.setConfigurables(ConfigParser.getConfigDetails(projectUri));
     return pomDetailsResponse;
 

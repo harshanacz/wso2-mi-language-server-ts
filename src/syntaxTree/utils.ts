@@ -16,6 +16,8 @@ import { ZipArchive } from "../synapse/host/zip.js";
 import { Constant } from "./constant.js";
 import { md5Hex } from "../synapse/utils/md5.js";
 import { Path } from "../synapse/host/nio.js";
+import { listResourceFolder, readResourceText } from "../synapse/resources.js";
+import { JsonArray, JsonElement, JsonObject, JsonParser } from "../synapse/gson.js";
 import { getEnumFromValue } from "./javaCompat.js";
 export { getEnumFromValue };
 import { PomParser } from "../synapse/parser/pom/PomParser.js";
@@ -95,6 +97,22 @@ export const Utils = {
       sanitized = "connector";
     }
     return sanitized;
+  },
+
+  /** Loads every `*.json` file of a bundled resource folder; keys are the file names with `_` read as `:`. */
+  getUISchemaMap(resourceFolderName: string): Map<string, JsonObject> {
+    const map = new Map<string, JsonObject>();
+    for (const name of listResourceFolder(resourceFolderName)) {
+      if (!name.endsWith(".json")) continue;
+      const key = name.replace(".json", "").split("_").join(":");
+      try {
+        const text = readResourceText(resourceFolderName + "/" + name);
+        if (text !== null) map.set(key, JsonParser.parseString(text).getAsJsonObject());
+      } catch (e) {
+        // a broken schema file is skipped, as the Java version logs and continues
+      }
+    }
+    return map;
   },
 
   isExpression(value: string | null | undefined): boolean {
@@ -188,19 +206,19 @@ export const Utils = {
     new JFile(path).writeText(content);
   },
 
-  getJsonObject(content: string): any | null {
-    const e = JSON.parse(content);
-    return e !== null && typeof e === "object" && !Array.isArray(e) ? e : null;
+  getJsonObject(content: string): JsonObject | null {
+    const e = JsonParser.parseString(content);
+    return e.isJsonObject() ? e.getAsJsonObject() : null;
   },
 
-  getJsonArray(content: string): any[] | null {
-    const e = JSON.parse(content);
-    return Array.isArray(e) ? e : null;
+  getJsonArray(content: string): JsonArray | null {
+    const e = JsonParser.parseString(content);
+    return e.isJsonArray() ? e.getAsJsonArray() : null;
   },
 
-  getJsonElement(content: string): any | null {
+  getJsonElement(content: string): JsonElement | null {
     try {
-      return JSON.parse(content);
+      return JsonParser.parseString(content);
     } catch {
       return null;
     }
@@ -212,8 +230,7 @@ export const Utils = {
 
   isJSONObject(content: string): boolean {
     try {
-      const e = JSON.parse(content);
-      return e !== null && typeof e === "object" && !Array.isArray(e);
+      return JsonParser.parseString(content).isJsonObject();
     } catch {
       return false;
     }
