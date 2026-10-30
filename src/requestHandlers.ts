@@ -14,6 +14,8 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getLanguageService } from "./xmlLanguageService.js";
 import { DiagnosticsHandler } from "./diagnosticsHandler.js";
+import { expressionValidation } from "./expression/index.js";
+import type { ExpressionParam } from "./expression/index.js";
 import {
   getFileName,
   getDocumentPath,
@@ -45,6 +47,15 @@ export function registerRequestHandlers(
   }
 
   documents.onDidClose((e) => xmlDocCache.delete(e.document.uri));
+
+  // ── Custom Synapse requests (ported from the Java MI language server) ──
+
+  // Validates a Synapse expression (`${...}` wrapper optional). Same method name and
+  // response shape as the Java server's `synapse/expressionValidation`.
+  connection.onRequest("synapse/expressionValidation", (param: ExpressionParam) => {
+    connection.console.log("[synapse/expressionValidation] Triggered");
+    return expressionValidation(param);
+  });
 
   connection.onCompletion((params: CompletionParams) => {
     connection.console.log(

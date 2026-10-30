@@ -9,6 +9,8 @@ A TypeScript Language Server Protocol (LSP) implementation for WSO2 Micro Integr
 - **Navigation:** Go to definition, find references, and document symbols.
 - **Editing:** Document formatting, range formatting, folding ranges, and symbol renaming.
 
+- **Expression validation:** custom `synapse/expressionValidation` request, ported from the Java MI language server (ANTLR grammar + semantic checks for function arity/types, division by zero, arithmetic operands, filters). See `src/expression/`.
+
 > Note: `pom.xml` files use strict Maven 4.0.0 validation (completions and hover are disabled).
 
 ## Supported Schemas
@@ -30,6 +32,7 @@ src/
   schema/               XSD schema provider & CST compilation engine
   services/             Feature implementations (completion, hover, etc.)
   parser/               XML parser wrapper (@xml-tools/parser)
+  expression/           Synapse expression validator (ANTLR grammar in grammar/, generated parser in generated/)
 xerces-wasm/            Pre-built Apache Xerces-C WebAssembly module
 tests/                  Vitest test suite
 ```
@@ -59,4 +62,14 @@ LSP clients can configure schema associations via `initializationOptions` or `wo
     ]
   }
 }
+```
+
+## Regenerating the expression parser
+
+The parser in `src/expression/generated/` is produced from `src/expression/grammar/*.g4` with [antlr-ng](https://github.com/mike-lischke/antlr-ng) (no Java needed):
+
+```bash
+cd src/expression/grammar
+npx antlr-ng -Dlanguage=TypeScript -v -l false -o ../generated ExpressionLexer.g4 ExpressionParser.g4
+rm ../generated/*.interp ../generated/*.tokens
 ```
