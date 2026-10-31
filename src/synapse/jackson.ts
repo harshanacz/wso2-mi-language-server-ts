@@ -175,6 +175,40 @@ function writeOrdered(v: unknown, indent: number, depth = 0): string | undefined
   return JSON.stringify(v);
 }
 
+/**
+ * Jackson's DefaultPrettyPrinter: two space indent per nesting level, `"key" : value`, arrays written inline as
+ * `[ a, b ]` (arrays do not add a nesting level; objects inside them still break lines), `{ }` and `[ ]` when empty.
+ */
+export function writeJacksonPretty(v: unknown, level = 0): string | undefined {
+  if (v === undefined || typeof v === "function") return undefined;
+  if (v === null) return "null";
+  const pad = (n: number) => "  ".repeat(n);
+  const object = (entries: [string, unknown][]): string => {
+    const parts: string[] = [];
+    for (const [k, x] of entries) {
+      const t = writeJacksonPretty(x, level + 1);
+      if (t !== undefined) parts.push(pad(level + 1) + JSON.stringify(k) + " : " + t);
+    }
+    return parts.length === 0 ? "{ }" : "{\n" + parts.join(",\n") + "\n" + pad(level) + "}";
+  };
+  const array = (items: unknown[]): string =>
+    items.length === 0 ? "[ ]" : "[ " + items.map((x) => writeJacksonPretty(x, level) ?? "null").join(", ") + " ]";
+  if (v instanceof JsonNode) {
+    if (v instanceof ObjectNode) return object([...v.props.entries()]);
+    if (v instanceof ArrayNode) return array(v.items);
+    if (v instanceof MissingNode) return undefined;
+    return JSON.stringify(v.toPlain());
+  }
+  if (v instanceof Map) return object([...v.entries()].map(([k, x]) => [String(k), x] as [string, unknown]));
+  if (Array.isArray(v)) return array(v);
+  if (typeof v === "object") {
+    const maybe = v as { toJSON?: () => unknown };
+    if (typeof maybe.toJSON === "function") return writeJacksonPretty(maybe.toJSON(), level);
+    return object(Object.entries(v as object));
+  }
+  return JSON.stringify(v);
+}
+
 export class ObjectMapper {
   constructor(private readonly factory?: YAMLFactory) {}
   readTree(text: string): JsonNode {
@@ -189,7 +223,7 @@ export class ObjectMapper {
     return writeOrdered(v, 0) ?? "null";
   }
   writerWithDefaultPrettyPrinter(): { writeValueAsString(v: unknown): string } {
-    return { writeValueAsString: (v: unknown) => writeOrdered(v, 2) ?? "null" };
+    return { writeValueAsString: (v: unknown) => writeJacksonPretty(v) ?? "null" };
   }
   valueToTree(v: unknown): JsonNode { return fromPlainNode(JSON.parse(this.writeValueAsString(v))); }
   /** Reads JSON (or YAML with a YAMLFactory) from text or a file; `Map` as the target type gives a Map of the top level. */

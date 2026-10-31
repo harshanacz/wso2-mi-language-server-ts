@@ -67,7 +67,7 @@ function escapeXmlAttr(t: string): string {
 }
 
 /** Well-formedness check standing in for the JAXP parser used by Utils.formatXml (which rejects malformed XML). */
-function isWellFormed(doc: DOMDocument): boolean {
+export function isWellFormed(doc: DOMDocument): boolean {
   let roots = 0;
   const check = (nodes: DOMNode[], top: boolean): boolean => {
     for (const n of nodes) {
