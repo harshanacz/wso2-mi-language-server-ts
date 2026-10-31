@@ -1,5 +1,7 @@
 // @ts-nocheck
 // Generated from org/eclipse/lemminx/customservice/synapse/schemagen/xsd/JsonSchemaArrayNode.java by the java2ts converter (see tools/java2ts).
+import { JsonNodeFactory, ObjectNode, ArrayNode, JsonNode, ObjectMapper } from "../../jackson.js";
+import { XSModelGroup, XSComplexTypeDefinition, XSSimpleTypeDefinition, XSElementDeclaration, XSParticle, XSTerm, XSAttributeUse, XSAttributeDeclaration, XSConstants, XSModel, XSNamedMap, XSWildcard, XMLSchemaLoader } from "../../host/xs.js";
 import { JsonSchemaNode } from "./JsonSchemaNode.js";
 import { Utils } from "./Utils.js";
 

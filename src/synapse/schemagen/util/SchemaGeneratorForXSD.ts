@@ -1,5 +1,7 @@
 // @ts-nocheck
 // Generated from org/eclipse/lemminx/customservice/synapse/schemagen/util/SchemaGeneratorForXSD.java by the java2ts converter (see tools/java2ts).
+import { JsonNodeFactory, ObjectNode, ArrayNode, JsonNode, ObjectMapper } from "../../jackson.js";
+import { XSModelGroup, XSComplexTypeDefinition, XSSimpleTypeDefinition, XSElementDeclaration, XSParticle, XSTerm, XSAttributeUse, XSAttributeDeclaration, XSConstants, XSModel, XSNamedMap, XSWildcard, XMLSchemaLoader } from "../../host/xs.js";
 import { FileType } from "./FileType.js";
 import { FileUtils } from "../../host/commonsIo.js";
 import { SchemaGeneratorForXML } from "./SchemaGeneratorForXML.js";
@@ -29,7 +31,7 @@ export class SchemaGeneratorForXSD extends SchemaGeneratorForXML {
 
   generateJsonSchemaFromXsd(xsdContent: string): string {
     let schemaLoader = new XMLSchemaLoader();
-    let xsModel = schemaLoader.load(new DOMInputImpl(null, null, null, xsdContent, null));
+    let xsModel = schemaLoader.load(xsdContent);
     let jsonSchemaElements = this.convertXsModelToJsonSchemaElements(xsModel);
 
     let mapper = new ObjectMapper();

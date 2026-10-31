@@ -202,3 +202,9 @@ export class ObjectMapper {
     return value;
   }
 }
+
+export class JsonNodeFactory {
+  static readonly instance = new JsonNodeFactory();
+  objectNode(): ObjectNode { return new ObjectNode(); }
+  arrayNode(): ArrayNode { return new ArrayNode(); }
+}

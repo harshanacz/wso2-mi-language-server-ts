@@ -1,5 +1,7 @@
 // @ts-nocheck
 // Generated from org/eclipse/lemminx/customservice/synapse/schemagen/xsd/JsonSchemaNode.java by the java2ts converter (see tools/java2ts).
+import { JsonNodeFactory, ObjectNode, ArrayNode, JsonNode, ObjectMapper } from "../../jackson.js";
+import { XSModelGroup, XSComplexTypeDefinition, XSSimpleTypeDefinition, XSElementDeclaration, XSParticle, XSTerm, XSAttributeUse, XSAttributeDeclaration, XSConstants, XSModel, XSNamedMap, XSWildcard, XMLSchemaLoader } from "../../host/xs.js";
 import { StringUtils } from "../../../syntaxTree/javaCompat.js";
 import { Utils } from "./Utils.js";
 
@@ -19,69 +21,26 @@ export class JsonSchemaNode {
   constructor(id: string, type: string);
   constructor(node: ObjectNode, id: string, type: string, name: string);
   constructor(...args: any[]) {
-    dispatch: for (;;) {
+    let node: any, id: any = null, type: any = null, name: any = null;
+    const objectNode = () => JsonNodeFactory.instance.objectNode();
     switch (args.length) {
-      case 0: {
-        args = [JsonNodeFactory.instance.objectNode(), null, null, null];
-        continue dispatch;
-        break dispatch;
-      }
-      case 1: {
-        if (args[0] instanceof ObjectNode) {
-          const [node] = args;
-
-
-                  args = [node, null, null, null];
-
-
-                  continue dispatch;
-        } else if (typeof args[0] === 'string') {
-          const [id] = args;
-
-
-                  args = [JsonNodeFactory.instance.objectNode(), id, null, null];
-
-
-                  continue dispatch;
-        }
-        break dispatch;
-      }
-      case 2: {
-        if (args[0] instanceof ObjectNode) {
-          const [node, id] = args;
-
-
-                  args = [node, id, null, null];
-
-
-                  continue dispatch;
-        } else if (typeof args[0] === 'string') {
-          const [id, type] = args;
-
-
-                  args = [JsonNodeFactory.instance.objectNode(), id, type, null];
-
-
-                  continue dispatch;
-        }
-        break dispatch;
-      }
-      case 4: {
-        const [node, id, type, name] = args;
-
-
-                this.id = id;
-                this.name = name;
-                this.node = node;
-                this.put(Utils.ID, id);
-                this.put(Utils.TYPE, type);
-
-        break dispatch;
-      }
-      default: throw new Error('no matching overload');
+      case 0: node = objectNode(); break;
+      case 1:
+        if (typeof args[0] === 'string') { node = objectNode(); id = args[0]; } else { node = args[0]; }
+        break;
+      case 2:
+        if (typeof args[0] === 'string') { node = objectNode(); id = args[0]; type = args[1]; }
+        else { node = args[0]; id = args[1]; }
+        break;
+      default: [node, id, type, name] = args;
     }
-    }
+    this.id = id;
+    this.name = name;
+    this.node = node;
+    this.put(Utils.ID, id);
+    this.put(Utils.TYPE, type);
   }
+
 
   getId(): string {
     return this.id;

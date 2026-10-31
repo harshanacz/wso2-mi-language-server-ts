@@ -1,5 +1,7 @@
 // @ts-nocheck
 // Generated from org/eclipse/lemminx/customservice/synapse/schemagen/xsd/SimpleTypeProcessor.java by the java2ts converter (see tools/java2ts).
+import { JsonNodeFactory, ObjectNode, ArrayNode, JsonNode, ObjectMapper } from "../../jackson.js";
+import { XSModelGroup, XSComplexTypeDefinition, XSSimpleTypeDefinition, XSElementDeclaration, XSParticle, XSTerm, XSAttributeUse, XSAttributeDeclaration, XSConstants, XSModel, XSNamedMap, XSWildcard, XMLSchemaLoader } from "../../host/xs.js";
 import { JsonSchemaArrayNode } from "./JsonSchemaArrayNode.js";
 import { JsonSchemaNode } from "./JsonSchemaNode.js";
 import { JsonSchemaObjectNode } from "./JsonSchemaObjectNode.js";
@@ -25,9 +27,9 @@ export class SimpleTypeProcessor {
   }
 
   static processSimpleType(element: XSElementDeclaration, elementStructure: XSParticle, schemaNode: JsonSchemaNode): void {
-    let isArray = isElementArray(elementStructure);
+    let isArray = Utils.isElementArray(elementStructure);
     let simpleType = (element.getTypeDefinition() as XSSimpleTypeDefinition);
-    let type = Utils.mapXsdTypeToJsonType(getTypeName(simpleType));
+    let type = Utils.mapXsdTypeToJsonType(Utils.getTypeName(simpleType));
 
     if (isArray) {
         let jsonSchemaArray = new JsonSchemaArrayNode(schemaNode.getId(), schemaNode.getNode());
@@ -42,7 +44,7 @@ export class SimpleTypeProcessor {
     if (lexicalEnumeration.getLength() > 0) {
         let enumArray = JsonNodeFactory.instance.arrayNode();
         for (let enumValue of lexicalEnumeration) {
-            if (enumValue instanceof String) {
+            if (typeof enumValue === 'string') {
                 enumArray.push((enumValue as string));
             }
         }

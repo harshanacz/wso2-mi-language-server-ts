@@ -1,5 +1,7 @@
 // @ts-nocheck
 // Generated from org/eclipse/lemminx/customservice/synapse/schemagen/xsd/ComplexTypeProcessor.java by the java2ts converter (see tools/java2ts).
+import { JsonNodeFactory, ObjectNode, ArrayNode, JsonNode, ObjectMapper } from "../../jackson.js";
+import { XSModelGroup, XSComplexTypeDefinition, XSSimpleTypeDefinition, XSElementDeclaration, XSParticle, XSTerm, XSAttributeUse, XSAttributeDeclaration, XSConstants, XSModel, XSNamedMap, XSWildcard, XMLSchemaLoader } from "../../host/xs.js";
 import { JsonSchemaArrayNode } from "./JsonSchemaArrayNode.js";
 import { JsonSchemaElementValueNode } from "./JsonSchemaElementValueNode.js";
 import { JsonSchemaNode } from "./JsonSchemaNode.js";
@@ -25,7 +27,7 @@ export class ComplexTypeProcessor {
     let name = element.getName();
     let complexType = (element.getTypeDefinition() as XSComplexTypeDefinition);
     let childElementStructure = complexType.getParticle();
-    if (isElementArray(elementStructure)) {
+    if (Utils.isElementArray(elementStructure)) {
         ComplexTypeProcessor.processArrayType(node, id, childElementStructure, complexType);
     } else {
         ComplexTypeProcessor.processObjectType(node, id, childElementStructure, complexType, addTitle, name);
@@ -116,7 +118,7 @@ export class ComplexTypeProcessor {
                 if (lexicalEnumeration.getLength() > 0) {
                     let enumArray = JsonNodeFactory.instance.arrayNode();
                     for (let enumValue of lexicalEnumeration) {
-                        if (enumValue instanceof String) {
+                        if (typeof enumValue === 'string') {
                             enumArray.push((enumValue as string));
                         }
                     }
