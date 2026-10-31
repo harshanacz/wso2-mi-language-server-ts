@@ -43,11 +43,21 @@ export function removeFrom(c: any, k: any): any {
 export function parseBoolean(s: string | null | undefined): boolean { return s != null && s.toLowerCase() === "true"; }
 export function matches(s: string, re: string): boolean { return new RegExp("^(?:" + re + ")$").test(s); }
 export function jreplace(s: string, a: string, b: string): string { return s.split(a).join(b); }
+/** Compiles a java.util.regex pattern, honouring leading inline flags such as (?i) and (?s). */
+export function javaRegex(re: string, flags = ""): RegExp {
+  let f = flags;
+  let m: RegExpExecArray | null;
+  while ((m = /^\(\?([a-z]+)\)/.exec(re)) !== null) {
+    for (const c of m[1]) if ("ism".includes(c) && !f.includes(c)) f += c;
+    re = re.slice(m[0].length);
+  }
+  return new RegExp(re, f);
+}
 export function replaceAll(s: string, re: string, rep: string): string {
-  return s.replace(new RegExp(re, "g"), rep.replace(/\$(\d)/g, "$$$1"));
+  return s.replace(javaRegex(re, "g"), rep.replace(/\$(\d)/g, "$$$1"));
 }
 export function jsplit(s: string, re: string): string[] {
-  const parts = s.split(new RegExp(re));
+  const parts = s.split(javaRegex(re));
   while (parts.length > 1 && parts[parts.length - 1] === "") parts.pop();
   return s === "" ? [""] : parts;
 }
@@ -213,4 +223,59 @@ export function mapPutAll<K, V>(m: Map<K, V>, other: Map<K, V>): void {
 /** java.util.Map.putIfAbsent for every entry of `other` */
 export function mapPutAllIfAbsent<K, V>(m: Map<K, V>, other: Map<K, V>): void {
   for (const [k, v] of other) if (m.get(k) == null) m.set(k, v);
+}
+
+/** java.lang.String.hashCode. */
+export function javaStringHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) | 0;
+  return h;
+}
+
+function javaKeyHash(k: unknown): number {
+  if (typeof k === "string") return javaStringHash(k);
+  if (typeof k === "number" && Number.isInteger(k)) return k | 0;
+  if (typeof k === "boolean") return k ? 1231 : 1237;
+  return 0;
+}
+
+/**
+ * java.util.HashMap iteration order for String, Integer and Boolean keys. Entries are visited by bucket index
+ * ((h ^ h >>> 16) & (capacity - 1)); within a bucket in insertion order. The capacity starts at 16 and doubles
+ * whenever the size passes 3/4 of it (it never shrinks). Bucket treeification is not modelled.
+ */
+export class JavaHashMap<K, V> extends Map<K, V> {
+  private capacity = 16;
+
+  override set(key: K, value: V): this {
+    super.set(key, value);
+    while (this.size > this.capacity * 0.75) this.capacity *= 2;
+    return this;
+  }
+
+  private ordered(): [K, V][] {
+    const mask = this.capacity - 1;
+    const withBucket = [...super.entries()].map((e, i) => {
+      const h = javaKeyHash(e[0]);
+      return { e, i, b: (h ^ (h >>> 16)) & mask };
+    });
+    withBucket.sort((a, b) => a.b - b.b || a.i - b.i);
+    return withBucket.map((x) => x.e);
+  }
+
+  override entries(): MapIterator<[K, V]> {
+    return this.ordered()[Symbol.iterator]() as MapIterator<[K, V]>;
+  }
+  override keys(): MapIterator<K> {
+    return this.ordered().map((e) => e[0])[Symbol.iterator]() as MapIterator<K>;
+  }
+  override values(): MapIterator<V> {
+    return this.ordered().map((e) => e[1])[Symbol.iterator]() as MapIterator<V>;
+  }
+  override [Symbol.iterator](): MapIterator<[K, V]> {
+    return this.entries();
+  }
+  override forEach(fn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: unknown): void {
+    for (const [k, v] of this.ordered()) fn.call(thisArg, v, k, this);
+  }
 }
