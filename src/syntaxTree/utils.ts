@@ -15,7 +15,7 @@ import { JFile } from "../synapse/host/JFile.js";
 import { ZipArchive } from "../synapse/host/zip.js";
 import { Constant } from "./constant.js";
 import { md5Hex } from "../synapse/utils/md5.js";
-import { Path } from "../synapse/host/nio.js";
+import { Path, Files } from "../synapse/host/nio.js";
 import { listResourceFolder, readResourceText } from "../synapse/resources.js";
 import { JsonArray, JsonElement, JsonObject, JsonParser } from "../synapse/gson.js";
 import { getEnumFromValue } from "./javaCompat.js";
@@ -454,6 +454,18 @@ export const Utils = {
 
   deleteDirectory(path: Path | string): void {
     new JFile(path.toString()).delete();
+  },
+
+  /** Copies a file into the target folder (optionally under a new name), replacing an existing file. */
+  copyFile(sourcePath: string, targetPath: string, targetFileName?: string | null): void {
+    const source = Path.fromString(sourcePath);
+    const targetFolder = Path.fromString(targetPath);
+    const target = targetFileName != null ? targetFolder.resolve(targetFileName) : targetFolder.resolve(source.getFileName() as Path);
+    if (Files.notExists(target)) {
+      const parent = target.getParent();
+      if (parent) Files.createDirectories(parent);
+    }
+    Files.copy(source, target);
   },
 
   escapeXML(text: string | null | undefined): string | null | undefined {

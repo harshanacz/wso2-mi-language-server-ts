@@ -8,7 +8,7 @@ export class Edits {
   edits?: Edit[];
 
   getEdits(): Edit[] {
-    return this.edits.clone();
+    return this.edits == null ? this.edits : [...this.edits];
 
   }
 

@@ -93,7 +93,7 @@ export class MediatorTryoutRequest {
     if (this.edits == null) {
         return null;
     }
-    return this.edits.clone();
+    return this.edits == null ? this.edits : [...this.edits];
 
   }
 

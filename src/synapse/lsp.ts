@@ -88,3 +88,111 @@ export class Either<L, R> {
 export interface CancelChecker {
   checkCanceled(): void;
 }
+
+export const CompletionItemKind = {
+  Text: 1, Method: 2, Function: 3, Constructor: 4, Field: 5, Variable: 6, Class: 7, Interface: 8, Module: 9,
+  Property: 10, Unit: 11, Value: 12, Enum: 13, Keyword: 14, Snippet: 15, Color: 16, File: 17, Reference: 18,
+  Folder: 19, EnumMember: 20, Constant: 21, Struct: 22, Event: 23, Operator: 24, TypeParameter: 25,
+} as const;
+export type CompletionItemKind = (typeof CompletionItemKind)[keyof typeof CompletionItemKind];
+
+export const InsertTextFormat = { PlainText: 1, Snippet: 2 } as const;
+export type InsertTextFormat = (typeof InsertTextFormat)[keyof typeof InsertTextFormat];
+
+export class MarkupContent {
+  kind?: string;
+  value?: string;
+  constructor(kind?: string, value?: string) { this.kind = kind; this.value = value; }
+  getKind(): string | undefined { return this.kind; }
+  getValue(): string | undefined { return this.value; }
+}
+
+export class CompletionItem {
+  label?: string;
+  kind?: CompletionItemKind;
+  detail?: string;
+  documentation?: Either<string, MarkupContent>;
+  sortText?: string;
+  filterText?: string;
+  insertText?: string;
+  insertTextFormat?: InsertTextFormat;
+  textEdit?: Either<TextEdit, any>;
+  additionalTextEdits?: TextEdit[];
+  commitCharacters?: string[];
+  data?: any;
+  getLabel(): string | undefined { return this.label; }
+  setLabel(label: string | undefined): void { this.label = label; }
+  getKind(): CompletionItemKind | undefined { return this.kind; }
+  setKind(kind: CompletionItemKind | undefined): void { this.kind = kind; }
+  getDetail(): string | undefined { return this.detail; }
+  setDetail(detail: string | undefined): void { this.detail = detail; }
+  getDocumentation(): Either<string, MarkupContent> | undefined { return this.documentation; }
+  setDocumentation(documentation: Either<string, MarkupContent> | undefined): void { this.documentation = documentation; }
+  getSortText(): string | undefined { return this.sortText; }
+  setSortText(sortText: string | undefined): void { this.sortText = sortText; }
+  getFilterText(): string | undefined { return this.filterText; }
+  setFilterText(filterText: string | undefined): void { this.filterText = filterText; }
+  getInsertText(): string | undefined { return this.insertText; }
+  setInsertText(insertText: string | undefined): void { this.insertText = insertText; }
+  getInsertTextFormat(): InsertTextFormat | undefined { return this.insertTextFormat; }
+  setInsertTextFormat(insertTextFormat: InsertTextFormat | undefined): void { this.insertTextFormat = insertTextFormat; }
+  getTextEdit(): Either<TextEdit, any> | undefined { return this.textEdit; }
+  setTextEdit(textEdit: Either<TextEdit, any> | undefined): void { this.textEdit = textEdit; }
+  getAdditionalTextEdits(): TextEdit[] | undefined { return this.additionalTextEdits; }
+  setAdditionalTextEdits(additionalTextEdits: TextEdit[] | undefined): void { this.additionalTextEdits = additionalTextEdits; }
+  getCommitCharacters(): string[] | undefined { return this.commitCharacters; }
+  setCommitCharacters(commitCharacters: string[] | undefined): void { this.commitCharacters = commitCharacters; }
+  getData(): any | undefined { return this.data; }
+  setData(data: any | undefined): void { this.data = data; }
+}
+export class CompletionList {
+  isIncomplete: boolean = false;
+  items: CompletionItem[] = [];
+  constructor(items?: CompletionItem[] | boolean, isIncomplete?: boolean) {
+    if (Array.isArray(items)) { this.items = items; this.isIncomplete = isIncomplete ?? false; }
+    else if (typeof items === "boolean") { this.isIncomplete = items; }
+  }
+  getItems(): CompletionItem[] { return this.items; }
+  setItems(items: CompletionItem[]): void { this.items = items; }
+  isIncompleteList(): boolean { return this.isIncomplete; }
+  setIsIncomplete(isIncomplete: boolean): void { this.isIncomplete = isIncomplete; }
+}
+
+export class ParameterInformation {
+  label?: Either<string, any>;
+  documentation?: Either<string, MarkupContent>;
+  getLabel(): Either<string, any> | undefined { return this.label; }
+  setLabel(label: Either<string, any> | undefined): void { this.label = label; }
+  getDocumentation(): Either<string, MarkupContent> | undefined { return this.documentation; }
+  setDocumentation(documentation: Either<string, MarkupContent> | undefined): void { this.documentation = documentation; }
+}
+export class SignatureInformation {
+  label?: string;
+  documentation?: Either<string, MarkupContent>;
+  parameters?: ParameterInformation[];
+  activeParameter?: number;
+  getLabel(): string | undefined { return this.label; }
+  setLabel(label: string | undefined): void { this.label = label; }
+  getDocumentation(): Either<string, MarkupContent> | undefined { return this.documentation; }
+  setDocumentation(documentation: Either<string, MarkupContent> | undefined): void { this.documentation = documentation; }
+  getParameters(): ParameterInformation[] | undefined { return this.parameters; }
+  setParameters(parameters: ParameterInformation[] | undefined): void { this.parameters = parameters; }
+  getActiveParameter(): number | undefined { return this.activeParameter; }
+  setActiveParameter(activeParameter: number | undefined): void { this.activeParameter = activeParameter; }
+}
+export class SignatureHelp {
+  signatures: SignatureInformation[];
+  activeSignature?: number;
+  activeParameter?: number;
+  constructor(signatures?: SignatureInformation[], activeSignature?: number, activeParameter?: number) {
+    this.signatures = signatures ?? [];
+    this.activeSignature = activeSignature;
+    this.activeParameter = activeParameter;
+  }
+  getSignatures(): SignatureInformation[] { return this.signatures; }
+  setSignatures(s: SignatureInformation[]): void { this.signatures = s; }
+  getActiveSignature(): number | undefined { return this.activeSignature; }
+  setActiveSignature(n: number | undefined): void { this.activeSignature = n; }
+  getActiveParameter(): number | undefined { return this.activeParameter; }
+  setActiveParameter(n: number | undefined): void { this.activeParameter = n; }
+}

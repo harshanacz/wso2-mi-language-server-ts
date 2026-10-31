@@ -13,15 +13,15 @@ export class SchemaGeneratorFactory {
 
   getSchemaGenerator(fileType: FileType): ISchemaGenerator {
     	switch(fileType) {
-    	case JSONSCHEMA:
+    	case FileType.JSONSCHEMA:
     		return new AbstractSchemaGenerator();
-    	case XSD:
+    	case FileType.XSD:
     		return new SchemaGeneratorForXSD();
-    	case XML:
+    	case FileType.XML:
     		return new SchemaGeneratorForXML();
-    	case JSON:
+    	case FileType.JSON:
     		return new SchemaGeneratorForJSON();
-    	case CSV:
+    	case FileType.CSV:
     		return new SchemaGeneratorForCSV();
 
     }

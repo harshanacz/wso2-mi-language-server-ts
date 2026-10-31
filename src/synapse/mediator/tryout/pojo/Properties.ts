@@ -128,15 +128,15 @@ export class Properties {
         return null;
     }
     switch (type) {
-        case SYNAPSE:
+        case Type.SYNAPSE:
             return this.synapse;
-        case AXIS2:
+        case Type.AXIS2:
             return this.axis2;
-        case AXIS2_CLIENT:
+        case Type.AXIS2_CLIENT:
             return this.axis2Client;
-        case AXIS2_TRANSPORT:
+        case Type.AXIS2_TRANSPORT:
             return this.axis2Transport;
-        case AXIS2_OPERATION:
+        case Type.AXIS2_OPERATION:
             return this.axis2Operation;
         default:
             return null;

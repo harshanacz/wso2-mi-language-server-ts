@@ -104,11 +104,11 @@ export class Params {
         return [];
     }
     switch (key) {
-        case QUERY:
+        case Type.QUERY:
             return this.queryParams;
-        case PATH:
+        case Type.PATH:
             return this.pathParams;
-        case FUNC:
+        case Type.FUNC:
             return this.functionParams;
         default:
             return [];

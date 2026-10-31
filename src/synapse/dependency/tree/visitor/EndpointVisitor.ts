@@ -42,7 +42,7 @@ export class EndpointVisitor extends AbstractDependencyVisitor {
   visit(node: STNode): void {
     let endpoint = (node as NamedEndpoint);
     switch (endpoint.getType()) {
-        case HTTP_ENDPOINT:
+        case EndpointType.HTTP_ENDPOINT:
             let httpEndpoint = endpoint.getHttp();
             if (httpEndpoint != null) {
                 let configs =
@@ -55,7 +55,7 @@ export class EndpointVisitor extends AbstractDependencyVisitor {
                 }
             }
             break;
-        case ADDRESS_ENDPOINT:
+        case EndpointType.ADDRESS_ENDPOINT:
             let addressEndpoint = endpoint.getAddress();
             if (addressEndpoint != null) {
                 let enableSec = addressEndpoint.getEnableSec();
@@ -64,7 +64,7 @@ export class EndpointVisitor extends AbstractDependencyVisitor {
                 }
             }
             break;
-        case DEFAULT_ENDPOINT:
+        case EndpointType.DEFAULT_ENDPOINT:
             let defaultEndpoint = endpoint.get_default();
             if (defaultEndpoint != null) {
                 let enableSec = defaultEndpoint.getEnableSec();
@@ -73,7 +73,7 @@ export class EndpointVisitor extends AbstractDependencyVisitor {
                 }
             }
             break;
-        case FAIL_OVER_ENDPOINT:
+        case EndpointType.FAIL_OVER_ENDPOINT:
             let failOver = endpoint.getFailover();
             if (failOver != null) {
                 let endpoints = failOver.getEndpoint();
@@ -84,7 +84,7 @@ export class EndpointVisitor extends AbstractDependencyVisitor {
                 }
             }
             break;
-        case LOAD_BALANCE_ENDPOINT:
+        case EndpointType.LOAD_BALANCE_ENDPOINT:
             let loadBalance = endpoint.getLoadbalance();
             if (loadBalance != null) {
                 let endpointOrMembers = loadBalance.getEndpointOrMember();
@@ -97,7 +97,7 @@ export class EndpointVisitor extends AbstractDependencyVisitor {
                 }
             }
             break;
-        case RECIPIENT_LIST_ENDPOINT:
+        case EndpointType.RECIPIENT_LIST_ENDPOINT:
             let recipientListEp = endpoint.getRecipientlist();
             if (recipientListEp != null) {
                 let childEndpoints = recipientListEp.getEndpoint();
@@ -108,13 +108,13 @@ export class EndpointVisitor extends AbstractDependencyVisitor {
                 }
             }
             break;
-        case TEMPLATE_ENDPOINT:
+        case EndpointType.TEMPLATE_ENDPOINT:
             let template = endpoint.getTemplate();
             if (template != null) {
                 this.addDependency(DependencyVisitorUtils.visitTemplate(this.projectPath, template, this.dependencyLookUp));
             }
             break;
-        case WSDL_ENDPOINT:
+        case EndpointType.WSDL_ENDPOINT:
             let wsdlEndpoint = endpoint.getWsdl();
             if (wsdlEndpoint != null) {
                 let enableSec = wsdlEndpoint.getEnableSec();
