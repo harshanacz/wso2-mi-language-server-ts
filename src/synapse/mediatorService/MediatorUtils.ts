@@ -2,6 +2,8 @@
 // Generated from org/eclipse/lemminx/customservice/synapse/mediatorService/MediatorUtils.java by the java2ts converter (see tools/java2ts).
 import { isEmpty, contains, get, jsplit, format, entrySet } from "../../syntaxTree/javaCompat.js";
 import { Constant } from "../../syntaxTree/constant.js";
+import { ExpressionHelperProvider } from "../expression/ExpressionHelperProvider.js";
+import { ExpressionParam } from "../expression/pojo/ExpressionParam.js";
 import { Namespace } from "./pojo/Namespace.js";
 import { Position } from "../lsp.js";
 import { TextDocumentIdentifier } from "../lsp.js";
@@ -9,7 +11,26 @@ import { TextDocumentIdentifier } from "../lsp.js";
 export class MediatorUtils {
   static readonly __fields: string[] = [];
 
-  // TODO(expression helper port): generateResponseVariableDefaultValue needs ExpressionHelperProvider
+  static generateResponseVariableDefaultValue(documentIdentifier: TextDocumentIdentifier, position: Position, connectorName: string, operationName: string): string {
+    let expressionHelperProvider = new ExpressionHelperProvider("");
+    let expressionParam = new ExpressionParam(documentIdentifier.getUri(), position);
+    let lastMediatorHelperData = expressionHelperProvider.getLastMediatorHelperData(expressionParam);
+    let variables = lastMediatorHelperData.getVariables();
+    let usedMaxDigit = 0;
+    for (let variable of variables) {
+        let variableName = variable.getLabel();
+        if (variableName.startsWith(format("%s_%s_", connectorName, operationName))) {
+            let digitPart = jsplit(variableName, "_")[2];
+            try {
+                usedMaxDigit = Math.max(usedMaxDigit, parseInt(digitPart));
+            } catch (ignored) {
+                continue;
+            }
+        }
+    }
+    return format("%s_%s_%s", connectorName, operationName, usedMaxDigit + 1);
+
+  }
 
   static transformNamespaces(namespaces: Map<string, string>): Namespace[] {
     let transformedNamespaces = [];
@@ -50,7 +71,7 @@ export class MediatorUtils {
   }
 
   static getExpressionData(expression: string): Map<any, any> {
-    return new Map([[Constant.IS_EXPRESSION, true], [Constant.VALUE, expression]]);
+    return new Map<string, any>([[Constant.IS_EXPRESSION, true], [Constant.VALUE, expression]]);
 
   }
 }

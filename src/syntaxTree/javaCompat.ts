@@ -132,6 +132,7 @@ export const System = {
 };
 export const Integer = { MAX_VALUE: 2147483647, MIN_VALUE: -2147483648, parseInt: (s: string) => parseInt(s, 10), valueOf: (s: any) => Number(s), toString: (n: number) => String(n) };
 export class IllegalStateException extends Error {}
+export class IllegalArgumentException extends Error {}
 export class UnsupportedOperationException extends Error {}
 
 /** java.util.Collection/Map.clear(): arrays are emptied in place, maps and sets use their own clear(). */
@@ -199,4 +200,17 @@ export function computeIfAbsent<K, V>(m: Map<K, V>, key: K, fn: (k: K) => V): V 
     }
   }
   return v as V;
+}
+
+/** java.util.Map.replaceAll */
+export function mapReplaceAll<K, V>(m: Map<K, V>, fn: (k: K, v: V) => V): void {
+  for (const [k, v] of [...m.entries()]) m.set(k, fn(k, v));
+}
+/** java.util.Map.putAll */
+export function mapPutAll<K, V>(m: Map<K, V>, other: Map<K, V>): void {
+  for (const [k, v] of other) m.set(k, v);
+}
+/** java.util.Map.putIfAbsent for every entry of `other` */
+export function mapPutAllIfAbsent<K, V>(m: Map<K, V>, other: Map<K, V>): void {
+  for (const [k, v] of other) if (m.get(k) == null) m.set(k, v);
 }

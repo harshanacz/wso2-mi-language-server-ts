@@ -11,14 +11,17 @@ export function escapeXml(text: string | null | undefined): string | null | unde
 }
 
 import { DOMNode, DOMElement, DOMAttr, DOMDocument, parseDOM } from "./dom/dom.js";
+import type { Position } from "../synapse/lsp.js";
 import { JFile } from "../synapse/host/JFile.js";
 import { ZipArchive } from "../synapse/host/zip.js";
 import { Constant } from "./constant.js";
 import { md5Hex } from "../synapse/utils/md5.js";
-import { Path, Files } from "../synapse/host/nio.js";
+import { Path, Files, IOException } from "../synapse/host/nio.js";
 import { listResourceFolder, readResourceText } from "../synapse/resources.js";
 import { JsonArray, JsonElement, JsonObject, JsonParser } from "../synapse/gson.js";
 import { getEnumFromValue } from "./javaCompat.js";
+import { MustacheFactory, type Mustache } from "../synapse/mustache/Mustache.js";
+import type { ConnectorHolder } from "../synapse/connectors/ConnectorHolder.js";
 export { getEnumFromValue };
 import { PomParser } from "../synapse/parser/pom/PomParser.js";
 import { OverviewPageDetailsResponse } from "../synapse/parser/OverviewPageDetailsResponse.js";
@@ -34,6 +37,170 @@ function attributeXmlString(node: DOMNode): string {
     }
   }
   return xml;
+}
+
+function decodeEntities(t: string): string {
+  return t.replace(/&(#x[0-9a-fA-F]+|#[0-9]+|lt|gt|amp|quot|apos);/g, (m, e: string) => {
+    if (e === "lt") return "<";
+    if (e === "gt") return ">";
+    if (e === "amp") return "&";
+    if (e === "quot") return '"';
+    if (e === "apos") return "'";
+    const code = e[1] === "x" ? parseInt(e.substring(2), 16) : parseInt(e.substring(1), 10);
+    return String.fromCodePoint(code);
+  });
+}
+
+function escapeXmlText(t: string): string {
+  return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function escapeXmlAttr(t: string): string {
+  return t
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/\n/g, "&#10;")
+    .replace(/\r/g, "&#13;")
+    .replace(/\t/g, "&#9;");
+}
+
+/** Well-formedness check standing in for the JAXP parser used by Utils.formatXml (which rejects malformed XML). */
+function isWellFormed(doc: DOMDocument): boolean {
+  let roots = 0;
+  const check = (nodes: DOMNode[], top: boolean): boolean => {
+    for (const n of nodes) {
+      if (n.isElement()) {
+        if (top) roots++;
+        if (n.isOrphanEndTag() || !n.hasStartTag()) return false;
+        if (!n.isSelfClosed() && !n.hasEndTag()) return false;
+        if (!n.getTagName()) return false;
+        const seen = new Set<string>();
+        for (const a of n.getAttributeNodes()) {
+          if (seen.has(a.getName())) return false;
+          seen.add(a.getName());
+        }
+        if (!check(n.getChildren(), false)) return false;
+      } else if (n.isText() && top && (n.getTextContent() ?? "").trim() !== "") {
+        return false;
+      }
+    }
+    return true;
+  };
+  return check(doc.getChildren(), true) && roots === 1;
+}
+
+function formatNode(node: DOMNode, depth: number, out: string[]): void {
+  const pad = " ".repeat(4 * depth);
+  if (node.isElement()) {
+    const name = node.getTagName() as string;
+    // The JDK DOM keeps attributes sorted by name.
+    const attrs = [...node.getAttributeNodes()].sort((a, b) => (a.getName() < b.getName() ? -1 : a.getName() > b.getName() ? 1 : 0));
+    const attrText = attrs.map((a) => " " + a.getName() + '="' + escapeXmlAttr(decodeEntities(a.getValue() ?? "")) + '"').join("");
+    const children = node.getChildren().filter((c) => !(c.isText() && (c.getTextContent() ?? "").trim() === ""));
+    if (children.length === 0) {
+      out.push(pad + "<" + name + attrText + "/>");
+      return;
+    }
+    if (children.every((c) => c.isText() || c.isCDATA())) {
+      const inner = children
+        .map((c) => (c.isCDATA() ? "<![CDATA[" + (c as any).getData() + "]]>" : escapeXmlText(decodeEntities(c.getTextContent() ?? ""))))
+        .join("");
+      out.push(pad + "<" + name + attrText + ">" + inner + "</" + name + ">");
+      return;
+    }
+    out.push(pad + "<" + name + attrText + ">");
+    for (const c of children) formatNode(c, depth + 1, out);
+    out.push(pad + "</" + name + ">");
+  } else if (node.isCDATA()) {
+    out.push(pad + "<![CDATA[" + (node as any).getData() + "]]>");
+  } else if (node.isComment()) {
+    out.push(pad + "<!--" + (node as any).getData() + "-->");
+  } else if (node.isText()) {
+    out.push(pad + escapeXmlText(decodeEntities(node.getTextContent() ?? "")));
+  }
+}
+
+export function formatXmlText(xml: string | null | undefined): string | null | undefined {
+  if (xml === null || xml === undefined || xml.trim() === "") return xml;
+  try {
+    const doc = parseDOM(xml, "file:///format.xml", false);
+    if (!isWellFormed(doc)) return xml;
+    const root = doc.getDocumentElement();
+    if (!root) return xml;
+    const out: string[] = [];
+    formatNode(root, 0, out);
+    return out.join("\n").trim();
+  } catch {
+    return xml;
+  }
+}
+
+function processMediatorList(mediatorList: JsonObject): void {
+  const favourites = mediatorList
+    .getAsJsonArray(Constant.FAVOURITES)
+    .asList()
+    .map((e) => e.getAsJsonObject().get(Constant.TITLE)!.getAsString());
+  for (const key of mediatorList.keySet()) {
+    const value = mediatorList.get(key)!;
+    if (key !== Constant.FAVOURITES && value.isJsonArray()) {
+      const arr = value.getAsJsonArray();
+      for (let i = arr.size() - 1; i >= 0; i--) {
+        if (favourites.includes(arr.get(i).getAsJsonObject().get(Constant.TITLE)!.getAsString())) arr.remove(i);
+      }
+    }
+    const itemObject = new JsonObject();
+    itemObject.add(Constant.ITEMS, value);
+    mediatorList.add(key, itemObject);
+  }
+}
+
+function addConnectorsToMediatorList(mediatorList: JsonObject, connectorHolder: ConnectorHolder, forAgentTool: boolean): void {
+  const other = mediatorList.remove(Constant.OTHER);
+  for (const connector of connectorHolder.getConnectors()) {
+    const operationsArray = new JsonArray();
+    const categories = new JsonObject();
+    for (const operation of connector.getActions()) {
+      if (operation.getHidden() || (forAgentTool && !operation.isCanActAsAgentTool())) continue;
+      const op = new JsonObject();
+      const dn = operation.getDisplayName();
+      op.addProperty(Constant.TITLE, dn === null || dn === undefined || dn === "" ? operation.getName() : dn);
+      op.addProperty(Constant.OPERATION_NAME, operation.getName());
+      op.addProperty(Constant.TAG, operation.getTag());
+      op.addProperty(Constant.TOOLTIP, operation.getDescription());
+      op.addProperty(Constant.ICON_PATH, connector.getIconPath());
+      const group = operation.getGroupName();
+      if (group !== null && group !== undefined && group !== "") {
+        if (categories.has(group)) {
+          categories.getAsJsonArray(group).add(op);
+        } else {
+          const arr = new JsonArray();
+          arr.add(op);
+          categories.add(group, arr);
+        }
+      } else {
+        operationsArray.add(op);
+      }
+    }
+    const connectorObject = new JsonObject();
+    if (categories.size() > 0) {
+      connectorObject.add(Constant.ITEMS, categories);
+      connectorObject.addProperty(Constant.IS_SUPPORT_CATEGORIES, true);
+    } else {
+      connectorObject.add(Constant.ITEMS, operationsArray);
+    }
+    connectorObject.addProperty(Constant.IS_CONNECTOR, true);
+    connectorObject.addProperty(Constant.ARTIFACT_ID, connector.getArtifactId());
+    connectorObject.addProperty(Constant.VERSION, connector.getVersion());
+    connectorObject.addProperty(Constant.CONNECTOR_PATH, connector.getConnectorZipPath());
+    const bm = connector.getBallerinaModulePath();
+    connectorObject.addProperty(Constant.IS_BALLERINA_MODULE, bm !== null && bm !== undefined && bm.trim() !== "");
+    connectorObject.addProperty(Constant.BALLERINA_MODULE_PATH, bm);
+    const dn = connector.getDisplayName();
+    mediatorList.add(dn === null || dn === undefined || dn === "" ? connector.getName() : dn, connectorObject);
+  }
+  if (other !== null) mediatorList.add(Constant.OTHER, other);
 }
 
 export const Utils = {
@@ -113,6 +280,46 @@ export const Utils = {
       }
     }
     return map;
+  },
+
+  /** Compiles every `*.mustache` template of a bundled resource folder; keys are the file names with `_` read as `:`. */
+  getTemplateMap(resourceFolderName: string): Map<string, Mustache> {
+    const map = new Map<string, Mustache>();
+    const factory = new MustacheFactory();
+    for (const name of listResourceFolder(resourceFolderName)) {
+      if (!name.endsWith(".mustache")) continue;
+      const key = name.replace(".mustache", "").split("_").join(":");
+      try {
+        const text = readResourceText(resourceFolderName + "/" + name);
+        if (text !== null) map.set(key, factory.compile(text, key));
+      } catch (e) {
+        // a broken template is skipped, as the Java version logs and continues
+      }
+    }
+    return map;
+  },
+
+  getMediatorList(version: string, connectorHolder: ConnectorHolder): JsonObject {
+    const text = readResourceText("mediators/mediators_" + version.split(".").join("") + ".json");
+    if (text === null) throw new IOException("Mediator list not found for the given version: " + version);
+    const mediatorList = JsonParser.parseString(text).getAsJsonObject();
+    processMediatorList(mediatorList);
+    addConnectorsToMediatorList(mediatorList, connectorHolder, false);
+    return mediatorList;
+  },
+
+  getAgentToolList(mediatorList: JsonObject, connectorHolder: ConnectorHolder): JsonObject {
+    const toolList = new JsonObject();
+    toolList.add("extension", mediatorList.get("extension"));
+    addConnectorsToMediatorList(toolList, connectorHolder, true);
+    return toolList;
+  },
+
+  getDOMNode(documentUri: string, position: Position): DOMNode | null {
+    if (!documentUri || !position) return null;
+    const document = Utils.getDOMDocumentFromPath(Utils.getAbsolutePath(documentUri));
+    if (!document) return null;
+    return document.findNodeAt(document.offsetAt(position));
   },
 
   isExpression(value: string | null | undefined): boolean {
@@ -454,6 +661,11 @@ export const Utils = {
 
   deleteDirectory(path: Path | string): void {
     new JFile(path.toString()).delete();
+  },
+
+  /** Pretty prints XML like the JAXP identity transformer with INDENT=yes and an indent of 4 (malformed input is returned unchanged). */
+  formatXml(xml: string | null | undefined): string | null | undefined {
+    return formatXmlText(xml);
   },
 
   /** Copies a file into the target folder (optionally under a new name), replacing an existing file. */
