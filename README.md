@@ -13,6 +13,28 @@ A TypeScript Language Server Protocol (LSP) implementation for WSO2 Micro Integr
 
 > Note: `pom.xml` files use strict Maven 4.0.0 validation (completions and hover are disabled).
 
+## Java to TypeScript port status
+
+The custom Synapse services of the Java MI language server (`customservice/synapse`) are being ported to TypeScript so the server can run in the browser. File system, zip and database access go through small host interfaces (`src/synapse/host/`), so the same code runs on Node or in a browser. Full table in [docs/PORT_STATUS.md](docs/PORT_STATUS.md).
+
+| Area | Status |
+| :--- | :--- |
+| Expression validation, completions, helper panel, signature help | Done |
+| Syntax tree (POJOs, factories, serializers) | Done |
+| Connectors, connections, inbound connectors | Done |
+| Directory tree, resource finder, definition, dependency tree | Done |
+| Schema generation (JSON, XML, CSV, XSD), tryout schema visitors | Done |
+| Debugger breakpoint info | Done |
+| Mediator service (mediator UI schemas, config generation, AI agent tools), Mustache engine, `formatXml` | Done |
+| Data service query generator (database access via `src/synapse/host/sql.ts`) | Done |
+| Connector config (`connector-config.json`, `descriptor.yml` merge) | Done |
+| Remaining Java test ports (pom parser, overview, parser) | In progress |
+| Registering the new `synapse/*` requests in `requestHandlers.ts` | In progress |
+| OpenAPI to Synapse API generator (`api/generator`) | Planned |
+| Mediator tryout against a live MI server, JDBC driver loading, DB connection test | Not ported (needs processes, sockets or native drivers) |
+
+Known differences from Java: `HashMap` iteration order is reproduced only where `JavaHashMap` is used (checked against the JDK); `Map.of` order is insertion order; the Mustache engine is a hand port without Java ground truth beyond the bundled templates; Jackson pretty printing is written from its documented format.
+
 ## Supported Schemas
 
 | Target Version | Schema Location | Default Namespace |
